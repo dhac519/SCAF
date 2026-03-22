@@ -72,6 +72,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <Link
                 key={item.href}
                 href={item.href}
+                prefetch={false}
                 onClick={() => setSidebarOpen(false)}
                 className={`flex items-center px-4 py-3.5 text-sm font-semibold rounded-2xl transition-all duration-200 ${
                   isActive 
