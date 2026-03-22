@@ -41,15 +41,39 @@ var __importStar = (this && this.__importStar) || (function () {
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var UsersService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../prisma/prisma.service");
 const bcrypt = __importStar(require("bcryptjs"));
-let UsersService = class UsersService {
+let UsersService = UsersService_1 = class UsersService {
     prisma;
+    logger = new common_1.Logger(UsersService_1.name);
     constructor(prisma) {
         this.prisma = prisma;
+    }
+    async onModuleInit() {
+        try {
+            const userCount = await this.prisma.user.count();
+            if (userCount === 0) {
+                this.logger.log('No users found in database. Seeding default admin user...');
+                const salt = await bcrypt.genSalt(10);
+                const hashedPassword = await bcrypt.hash('adminpassword123', salt);
+                await this.prisma.user.create({
+                    data: {
+                        email: 'admin@scaf.com',
+                        password: hashedPassword,
+                        name: 'Administrador Principal',
+                        role: 'ADMIN',
+                    },
+                });
+                this.logger.log('Default admin user created successfully.');
+            }
+        }
+        catch (error) {
+            this.logger.error('Failed to auto-seed admin user:', error);
+        }
     }
     async create(createUserDto) {
         const existingUser = await this.prisma.user.findUnique({
@@ -102,7 +126,7 @@ let UsersService = class UsersService {
     }
 };
 exports.UsersService = UsersService;
-exports.UsersService = UsersService = __decorate([
+exports.UsersService = UsersService = UsersService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], UsersService);

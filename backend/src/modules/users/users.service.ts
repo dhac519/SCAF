@@ -1,12 +1,37 @@
-import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException, OnModuleInit, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcryptjs';
 
 @Injectable()
-export class UsersService {
+export class UsersService implements OnModuleInit {
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(private readonly prisma: PrismaService) {}
+
+  async onModuleInit() {
+    try {
+      const userCount = await this.prisma.user.count();
+      if (userCount === 0) {
+        this.logger.log('No users found in database. Seeding default admin user...');
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash('adminpassword123', salt);
+        
+        await this.prisma.user.create({
+          data: {
+            email: 'admin@scaf.com',
+            password: hashedPassword,
+            name: 'Administrador Principal',
+            role: 'ADMIN',
+          },
+        });
+        this.logger.log('Default admin user created successfully.');
+      }
+    } catch (error) {
+      this.logger.error('Failed to auto-seed admin user:', error);
+    }
+  }
 
   async create(createUserDto: CreateUserDto) {
     const existingUser = await this.prisma.user.findUnique({
