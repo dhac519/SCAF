@@ -1,0 +1,154 @@
+// Configuración de Generador y DB
+generator client {
+  provider = "prisma-client-js" // Corregido el typo "prisma-client-id"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// --- MODELOS DE USUARIO Y SEGURIDAD ---
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  wallets     Wallet[]
+  investments Investment[]
+  bets        Bet[]
+  categories  Category[]
+  // Collections Module
+  collectionCategories    CollectionCategory[]
+  collectionSubcategories CollectionSubcategory[]
+  collectionItems         CollectionItem[]
+}
+
+// --- MÓDULO DE FINANZAS (PLATA) ---
+
+model Wallet {
+  id                String        @id @default(uuid())
+  name              String // Ej: "Ahorros BCP", "Efectivo", "Binance"
+  balance           Decimal       @default(0) @db.Decimal(15, 2)
+  currency          String        @default("PEN")
+  userId            String
+  user              User          @relation(fields: [userId], references: [id])
+  transactions      Transaction[] @relation("WalletToTransaction")
+  incomingTransfers Transaction[] @relation("TargetWalletToTransaction")
+}
+
+model Category {
+  id           String          @id @default(uuid())
+  name         String
+  type         TransactionType // INCOME o EXPENSE
+  userId       String
+  user         User            @relation(fields: [userId], references: [id])
+  transactions Transaction[]
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
+model Transaction {
+  id             String          @id @default(uuid())
+  amount         Decimal         @db.Decimal(15, 2)
+  description    String
+  date           DateTime        @default(now())
+  type           TransactionType
+  walletId       String
+  wallet         Wallet          @relation("WalletToTransaction", fields: [walletId], references: [id])
+  targetWalletId String?
+  targetWallet   Wallet?         @relation("TargetWalletToTransaction", fields: [targetWalletId], references: [id])
+  categoryId     String?
+  category       Category?       @relation(fields: [categoryId], references: [id])
+}
+
+// --- MÓDULO DE INVERSIONES ---
+
+model Investment {
+  id            String  @id @default(uuid())
+  assetName     String // Ej: "Bitcoin", "Tienda de Ropa"
+  type          String // "CRIPTO", "NEGOCIO", "ACCION"
+  initialAmount Decimal @db.Decimal(15, 2)
+  currentValue  Decimal @db.Decimal(15, 2)
+  userId        String
+  user          User    @relation(fields: [userId], references: [id])
+}
+
+// --- MÓDULO DE APUESTAS ---
+
+model Bet {
+  id        String    @id @default(uuid())
+  event     String // Ej: "Real Madrid vs Barcelona"
+  sport     String    @default("Fútbol")
+  stake     Decimal   @db.Decimal(15, 2)
+  odds      Decimal   @db.Decimal(5, 2)
+  status    BetStatus @default(PENDING)
+  result    Decimal?  @db.Decimal(15, 2) // Ganancia neta calculada
+  createdAt DateTime  @default(now())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+}
+
+enum BetStatus {
+  PENDING
+  WON
+  LOST
+  VOID
+}
+
+// --- MÓDULO COLECCIONES UNIVERSALES ---
+
+model CollectionCategory {
+  id     String @id @default(uuid())
+  name   String // Ej: "Monedas", "Billetes", "Estampillas"
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+  
+  subcategories CollectionSubcategory[]
+  items         CollectionItem[]
+}
+
+model CollectionSubcategory {
+  id         String @id @default(uuid())
+  name       String // Ej: "Riqueza y Orgullo", "Fauna Silvestre"
+  categoryId String
+  category   CollectionCategory @relation(fields: [categoryId], references: [id])
+  userId     String
+  user       User   @relation(fields: [userId], references: [id])
+
+  items      CollectionItem[]
+}
+
+model CollectionItem {
+  id             String        @id @default(uuid())
+  name           String        // Ej: "1 Sol - Machu Picchu"
+  year           Int?          // Opcional para otros objetos
+  quality        String?       // Opcional
+  quantity       Int           @default(1)
+  estimatedValue Decimal?      @db.Decimal(15, 2)
+  
+  categoryId     String
+  category       CollectionCategory  @relation(fields: [categoryId], references: [id])
+  
+  subcategoryId  String?
+  subcategory    CollectionSubcategory? @relation(fields: [subcategoryId], references: [id])
+  
+  userId         String
+  user           User          @relation(fields: [userId], references: [id])
+  createdAt      DateTime      @default(now())
+}
