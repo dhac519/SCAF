@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
-import { CheckCircle2, ShieldCheck, ArrowLeft, Plus, Library, LayoutGrid, Award } from 'lucide-react';
+import { CheckCircle2, ShieldCheck, ArrowLeft, Plus, Library, LayoutGrid, Award, Folder, FileImage } from 'lucide-react';
 import Link from 'next/link';
 
-export const collectionsData = [
+const collectionsData = [
   {
     id: 'riqueza-orgullo',
     title: 'Riqueza y Orgullo del Perú',
@@ -141,8 +141,10 @@ export default function AlbumHubPage() {
 
   const getOwnedCoinCount = (seriesId: string) => {
     const series = collectionsData.find(s => s.id === seriesId);
-    if (!series) return 0;
-    return series.items.filter(coin => items.some(i => i.name === coin.name && i.subcategory?.name === series.title)).length;
+    if (!series) return { obtained: 0, total: 0 };
+    const predefinedCount = series.items.filter(coin => items.some(i => i.name === coin.name && i.subcategory?.name === series.title)).length;
+    const extraCount = items.filter(i => i.subcategory?.name === series.title && !series.items.some(pre => pre.name === i.name)).length;
+    return { obtained: predefinedCount + extraCount, total: series.items.length + extraCount };
   };
 
   const handleMarkAsObtained = async (e: React.FormEvent) => {
@@ -158,6 +160,7 @@ export default function AlbumHubPage() {
       if (!catId) {
         const cRes = await api.post('/collections/categories', { name: 'Monedas de Colección' });
         catId = cRes.data.id;
+        setCategories([...categories, cRes.data]);
       }
       
       // 2. Ensure the Specific Subcategory exists (e.g. Fauna Silvestre)
@@ -194,6 +197,28 @@ export default function AlbumHubPage() {
     return items.find(i => i.name === name && i.subcategory?.name === seriesTitle);
   };
 
+  // --- Identify Custom Subcategories ---
+  const predefinedTitles = collectionsData.map(c => c.title);
+  const customSubcategories = categories.flatMap(c => c.subcategories || []).filter(s => !predefinedTitles.includes(s.name));
+  const itemsWithoutSub = items.filter(i => !i.subcategoryId);
+
+  // --- Computed Custom Album Layout Variables ---
+  let isCustom = false;
+  let customTitle = '';
+  let customItems: any[] = [];
+  
+  if (activeSeries?.startsWith('custom-')) {
+    isCustom = true;
+    const subId = activeSeries.replace('custom-', '');
+    const sub = customSubcategories.find(s => s.id === subId);
+    customTitle = sub ? sub.name : 'Álbum Personalizado';
+    customItems = items.filter(i => i.subcategoryId === subId);
+  } else if (activeSeries === 'misc') {
+    isCustom = true;
+    customTitle = 'Objetos Sin Subcategoría';
+    customItems = itemsWithoutSub;
+  }
+
   // --- VIEW 1: HUB ---
   if (!activeSeries) {
     return (
@@ -215,10 +240,9 @@ export default function AlbumHubPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {collectionsData.map(series => {
-            const owned = getOwnedCoinCount(series.id);
-            const total = series.items.length;
-            const percentage = (owned / total) * 100;
-            const isComplete = owned === total;
+            const { obtained: owned, total } = getOwnedCoinCount(series.id);
+            const percentage = Math.min((owned / total) * 100, 100);
+            const isComplete = owned >= total && total > 0;
 
             return (
               <div 
@@ -255,13 +279,154 @@ export default function AlbumHubPage() {
               </div>
             )
           })}
+          
+          {customSubcategories.map(sub => {
+             const subItems = items.filter(i => i.subcategoryId === sub.id);
+             return (
+               <div 
+                 key={`custom-${sub.id}`} 
+                 onClick={() => setActiveSeries(`custom-${sub.id}`)}
+                 className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group relative overflow-hidden flex flex-col justify-between h-56"
+               >
+                 <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10 blur-3xl transition-all bg-indigo-500 group-hover:opacity-20"></div>
+                 
+                 <div className="relative z-10">
+                   <div className="flex justify-between items-start mb-4">
+                     <span className="text-xs font-black text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg tracking-widest border border-slate-200 dark:border-slate-700 uppercase">
+                       Personalizado
+                     </span>
+                   </div>
+                   <h3 className="text-xl font-bold text-slate-900 dark:text-white leading-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                     {sub.name}
+                   </h3>
+                 </div>
+
+                 <div className="relative z-10 mt-auto">
+                    <div className="flex justify-between text-sm font-bold mb-2">
+                      <span className="text-indigo-600 dark:text-indigo-400">Piezas Registradas</span>
+                      <span className="text-slate-900 dark:text-white tabular-nums">{subItems.length}</span>
+                    </div>
+                 </div>
+               </div>
+             );
+          })}
+
+          {itemsWithoutSub.length > 0 && (
+               <div 
+                 onClick={() => setActiveSeries('misc')}
+                 className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group relative overflow-hidden flex flex-col justify-between h-56"
+               >
+                 <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10 blur-3xl transition-all bg-slate-500 group-hover:opacity-20"></div>
+                 
+                 <div className="relative z-10">
+                   <div className="flex justify-between items-start mb-4">
+                     <span className="text-xs font-black text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg tracking-widest border border-slate-200 dark:border-slate-700 uppercase">
+                       General
+                     </span>
+                   </div>
+                   <h3 className="text-xl font-bold text-slate-900 dark:text-white leading-tight group-hover:text-slate-600 dark:group-hover:text-slate-400 transition-colors">
+                     Sin Subcategoría
+                   </h3>
+                 </div>
+
+                 <div className="relative z-10 mt-auto">
+                    <div className="flex justify-between text-sm font-bold mb-2">
+                      <span className="text-slate-600 dark:text-slate-400">Piezas Registradas</span>
+                      <span className="text-slate-900 dark:text-white tabular-nums">{itemsWithoutSub.length}</span>
+                    </div>
+                 </div>
+               </div>
+          )}
+        </div>
+
+      </div>
+    );
+  }
+
+  // --- VIEW 2: CUSTOM ALBUM VIEW ---
+  if (isCustom) {
+    return (
+      <div className="space-y-8 animate-in fade-in duration-500 pb-16">
+        <div>
+          <button onClick={() => setActiveSeries(null)} className="inline-flex items-center text-sm font-semibold text-slate-500 hover:text-slate-900 dark:hover:text-white mb-4 transition-colors">
+             <ArrowLeft className="h-4 w-4 mr-1" /> Volver a Librería de Álbumes
+          </button>
+          <h1 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
+            <div className="p-2.5 bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400 rounded-2xl">
+              <Folder className="h-8 w-8" />
+            </div>
+            {customTitle}
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-2 max-w-2xl">
+            Colección personalizada generada dinámicamente a partir de tu inventario.
+          </p>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 md:p-8 shadow-sm">
+          
+          <div className="mb-8">
+             <div className="flex justify-between font-bold text-sm mb-2">
+               <span className="text-slate-700 dark:text-slate-300">Total de piezas obtenidas</span>
+               <span className="text-indigo-600 dark:text-indigo-400 tabular-nums">
+                 {customItems.length}
+               </span>
+             </div>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 xl:gap-8">
+             {customItems.map((coin, index) => {
+               return (
+                 <div 
+                   key={coin.id}
+                   className="relative w-full aspect-square rounded-[2rem] md:rounded-[3rem] flex flex-col items-center justify-center p-3 text-center transition-all duration-300 border-4 border-double bg-indigo-50 dark:bg-indigo-900/20 border-indigo-400 dark:border-indigo-600 shadow-xl shadow-indigo-500/10 scale-100"
+                 >
+                   <span className="font-black text-2xl absolute top-[15%] opacity-20 text-indigo-600 dark:text-indigo-400">
+                     {(index + 1).toString().padStart(2, '0')}
+                   </span>
+                   
+                   <div className="z-10 mt-4">
+                     <h4 className="text-[10px] md:text-xs font-extrabold px-1 leading-tight text-indigo-900 dark:text-indigo-100">
+                       {coin.name}
+                     </h4>
+                     {coin.quality && (
+                       <p className="text-[9px] mt-1 font-semibold text-indigo-600 dark:text-indigo-400">
+                         {coin.quality}
+                       </p>
+                     )}
+                   </div>
+                   
+                   {coin.quantity > 1 && (
+                      <div className="absolute bottom-0 translate-y-1/2 bg-indigo-500 text-white text-[11px] font-bold px-3 py-0.5 rounded-full shadow-md border-2 border-white dark:border-slate-900">
+                        x{coin.quantity}
+                      </div>
+                   )}
+                 </div>
+               )
+             })}
+             
+             {customItems.length === 0 && (
+                <div className="col-span-full py-12 text-center">
+                  <p className="text-slate-500 font-bold mb-4">No hay piezas en este álbum.</p>
+                  <Link href="/dashboard/collections" className="inline-flex items-center gap-2 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 px-6 py-3 rounded-xl font-bold hover:bg-indigo-200 dark:hover:bg-indigo-900/70 transition-colors">
+                     Ir a Inventario
+                  </Link>
+                </div>
+             )}
+          </div>
         </div>
       </div>
     );
   }
 
-  // --- VIEW 2: ALBUM CHECKLIST ---
+  // --- VIEW 3: ALBUM CHECKLIST (Predefined) ---
   const currentSeries = getSeriesData()!;
+  const extraOwnedCoins = items.filter(
+    i => i.subcategory?.name === currentSeries.title && 
+         !currentSeries.items.some((pre: any) => pre.name === i.name)
+  );
+
+  const obtainedCount = currentSeries.items.filter(c => getOwnedCoin(c.name, currentSeries.title)).length + extraOwnedCoins.length;
+  const totalSlots = currentSeries.items.length + extraOwnedCoins.length;
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-16">
@@ -287,13 +452,13 @@ export default function AlbumHubPage() {
            <div className="flex justify-between font-bold text-sm mb-2">
              <span className="text-slate-700 dark:text-slate-300">Colección completada</span>
              <span className="text-emerald-600 dark:text-emerald-400 tabular-nums">
-               {currentSeries.items.filter(c => getOwnedCoin(c.name, currentSeries.title)).length} / {currentSeries.items.length}
+               {obtainedCount} / {totalSlots}
              </span>
            </div>
            <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-4 overflow-hidden shadow-inner border border-slate-200 dark:border-slate-700">
               <div 
                 className="bg-gradient-to-r from-emerald-400 to-emerald-600 h-full rounded-full transition-all duration-1000 ease-out"
-                style={{ width: `${(currentSeries.items.filter(c => getOwnedCoin(c.name, currentSeries.title)).length / currentSeries.items.length) * 100}%` }}
+                style={{ width: `${Math.min((obtainedCount / totalSlots) * 100, 100)}%` }}
               ></div>
            </div>
         </div>
@@ -339,6 +504,39 @@ export default function AlbumHubPage() {
                  )}
                </button>
              )
+           })}
+
+           {/* Extra Coins mapped here */}
+           {extraOwnedCoins.map((extraCoin, idx) => {
+             return (
+               <button 
+                 key={`extra-${extraCoin.id}`}
+                 disabled={true}
+                 className="relative w-full aspect-square rounded-[2rem] md:rounded-[3rem] flex flex-col items-center justify-center p-3 text-center transition-all duration-300 border-4 border-double bg-emerald-50 dark:bg-emerald-900/20 border-emerald-400 dark:border-emerald-600 shadow-xl shadow-emerald-500/20 scale-100 cursor-default"
+               >
+                 <span className="font-black text-2xl absolute top-[15%] opacity-20 text-emerald-600">
+                   0{currentSeries.items.length + idx + 1}
+                 </span>
+                 <CheckCircle2 className="absolute top-1 right-2 h-6 md:h-7 w-6 md:w-7 text-emerald-500 drop-shadow-md bg-white dark:bg-slate-900 rounded-full" />
+                 
+                 <div className="z-10 mt-4">
+                   <h4 className="text-[10px] md:text-xs font-extrabold px-1 leading-tight text-emerald-900 dark:text-emerald-100">
+                     {extraCoin.name.includes('(') ? extraCoin.name.split(' (')[0] : extraCoin.name}
+                   </h4>
+                   {extraCoin.name.includes('(') && (
+                     <p className="text-[9px] mt-1 font-semibold text-emerald-600 dark:text-emerald-400">
+                       {extraCoin.name.split('(')[1]?.replace(')', '')}
+                     </p>
+                   )}
+                 </div>
+                 
+                 {extraCoin.quantity > 1 && (
+                    <div className="absolute bottom-0 translate-y-1/2 bg-emerald-500 text-white text-[11px] font-bold px-3 py-0.5 rounded-full shadow-md border-2 border-white dark:border-slate-900">
+                      x{extraCoin.quantity}
+                    </div>
+                 )}
+               </button>
+             );
            })}
         </div>
       </div>
