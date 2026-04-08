@@ -17,6 +17,7 @@ class CreateBetDto {
     sport;
     stake;
     odds;
+    walletId;
 }
 exports.CreateBetDto = CreateBetDto;
 __decorate([
@@ -43,4 +44,10 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", Number)
 ], CreateBetDto.prototype, "odds", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'uuid-billetera', description: 'ID de la billetera origen' }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateBetDto.prototype, "walletId", void 0);
 //# sourceMappingURL=create-bet.dto.js.map

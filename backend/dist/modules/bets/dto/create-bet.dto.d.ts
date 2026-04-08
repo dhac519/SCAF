@@ -3,4 +3,5 @@ export declare class CreateBetDto {
     sport?: string;
     stake: number;
     odds: number;
+    walletId?: string;
 }

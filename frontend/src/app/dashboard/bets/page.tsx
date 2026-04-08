@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import { Plus, Target, CheckCircle2, XCircle, MinusCircle, Trophy, Clock, Trash2, Coins } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface Bet {
   id: string;
@@ -20,6 +21,11 @@ export default function BetsPage() {
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [resolvingId, setResolvingId] = useState<string | null>(null);
+
+  const [cashoutModalOpen, setCashoutModalOpen] = useState(false);
+  const [cashoutBetId, setCashoutBetId] = useState<string | null>(null);
+  const [cashoutStake, setCashoutStake] = useState<string>('');
+  const [cashoutAmount, setCashoutAmount] = useState<string>('');
 
   const [event, setEvent] = useState('');
   const [sport, setSport] = useState('Fútbol');
@@ -70,8 +76,9 @@ export default function BetsPage() {
       setOdds('');
       setWalletId('');
       fetchBets();
+      toast.success('Apuesta registrada correctamente');
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Error al guardar apuesta');
+      toast.error(err.response?.data?.message || 'Error al guardar apuesta');
     }
   };
 
@@ -80,8 +87,9 @@ export default function BetsPage() {
     try {
       await api.patch(`/bets/${id}/resolve`, { status });
       fetchBets();
+      toast.success('Estado de la apuesta actualizado');
     } catch (err) {
-      alert('Error resolviendo apuesta');
+      toast.error('Error resolviendo apuesta');
     } finally {
       setResolvingId(null);
     }
@@ -92,23 +100,32 @@ export default function BetsPage() {
     try {
       await api.delete(`/bets/${id}`);
       fetchBets();
+      toast.success('Apuesta eliminada');
     } catch (err) {
-      alert('Error eliminando apuesta');
+      toast.error('Error eliminando apuesta');
     }
   };
 
-  const handleCashout = async (id: string, stake: string) => {
-    const amount = window.prompt(`¿Cuánto dinero OBTIENES en total al hacer Cashout?\nRecuerda usar formato decimal (ej: 15.50).\nTu stake inicial fue de S/ ${stake}.`);
-    if (amount === null) return;
-    if (amount.trim() === '' || isNaN(Number(amount))) {
-      alert('Monto inválido'); return;
+  const openCashoutModal = (id: string, stake: string) => {
+    setCashoutBetId(id);
+    setCashoutStake(stake);
+    setCashoutAmount('');
+    setCashoutModalOpen(true);
+  };
+
+  const confirmCashout = async () => {
+    if (!cashoutBetId) return;
+    if (cashoutAmount.trim() === '' || isNaN(Number(cashoutAmount))) {
+      toast.error('Monto inválido'); return;
     }
-    setResolvingId(id);
+    setResolvingId(cashoutBetId);
     try {
-      await api.patch(`/bets/${id}/resolve`, { status: 'CASHOUT', cashoutAmount: Number(amount) });
+      await api.patch(`/bets/${cashoutBetId}/resolve`, { status: 'CASHOUT', cashoutAmount: Number(cashoutAmount) });
       fetchBets();
+      toast.success('Cashout exitoso');
+      setCashoutModalOpen(false);
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Error procesando cashout');
+      toast.error(err.response?.data?.message || 'Error procesando cashout');
     } finally {
       setResolvingId(null);
     }
@@ -222,7 +239,7 @@ export default function BetsPage() {
                     {isPending ? (
                       <div className="flex bg-slate-100 dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700">
                         <button disabled={resolvingId === bet.id} onClick={() => handleResolve(bet.id, 'WON')} className="p-2.5 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 rounded-xl transition-all" title="Marcar Ganada"><CheckCircle2 className="w-5 h-5"/></button>
-                        <button disabled={resolvingId === bet.id} onClick={() => handleCashout(bet.id, bet.stake)} className="p-2.5 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-xl transition-all" title="Cashout (Retiro Anticipado)"><Coins className="w-5 h-5"/></button>
+                        <button disabled={resolvingId === bet.id} onClick={() => openCashoutModal(bet.id, bet.stake)} className="p-2.5 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-xl transition-all" title="Cashout (Retiro Anticipado)"><Coins className="w-5 h-5"/></button>
                         <button disabled={resolvingId === bet.id} onClick={() => handleResolve(bet.id, 'LOST')} className="p-2.5 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/50 rounded-xl transition-all" title="Marcar Perdida"><XCircle className="w-5 h-5"/></button>
                         <button disabled={resolvingId === bet.id} onClick={() => handleResolve(bet.id, 'VOID')} className="p-2.5 text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-700 shadow-sm rounded-xl transition-all" title="Anular"><MinusCircle className="w-5 h-5"/></button>
                         <button disabled={resolvingId === bet.id} onClick={() => handleDelete(bet.id)} className="p-2.5 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-xl transition-all ml-2" title="Eliminar"><Trash2 className="w-5 h-5"/></button>
@@ -249,6 +266,44 @@ export default function BetsPage() {
           )}
         </div>
       </div>
+
+      {cashoutModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6 animate-in slide-in-from-bottom-4 zoom-in-95">
+            <h3 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">Procesar Cashout</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+              ¿Cuánto dinero OBTIENES en total al hacer Cashout?<br />
+              Tu stake inicial fue de <b>S/ {Number(cashoutStake).toFixed(2)}</b>.
+            </p>
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Monto de Retiro</label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-medium">S/</span>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={cashoutAmount}
+                  onChange={(e) => setCashoutAmount(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 border border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                  placeholder="0.00"
+                  autoFocus
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-3">
+              <button onClick={() => setCashoutModalOpen(false)} className="px-5 py-2.5 font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">Cancelar</button>
+              <button
+                disabled={resolvingId === cashoutBetId}
+                onClick={confirmCashout}
+                className="px-6 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-md shadow-blue-600/20 transition-all flex items-center gap-2"
+              >
+                <Coins className="w-4 h-4" />
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

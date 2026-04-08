@@ -19,22 +19,50 @@ let BetsService = class BetsService {
         this.prisma = prisma;
     }
     async create(userId, createBetDto) {
-        return this.prisma.bet.create({
-            data: {
-                ...createBetDto,
-                userId,
-            },
+        const { walletId, ...betData } = createBetDto;
+        if (walletId) {
+            const wallet = await this.prisma.wallet.findFirst({
+                where: { id: walletId, userId },
+            });
+            if (!wallet)
+                throw new common_1.NotFoundException('Billetera no encontrada');
+        }
+        return this.prisma.$transaction(async (prisma) => {
+            const bet = await prisma.bet.create({
+                data: {
+                    ...betData,
+                    userId,
+                    walletId,
+                },
+            });
+            if (walletId) {
+                await prisma.transaction.create({
+                    data: {
+                        amount: betData.stake,
+                        description: `Apuesta: ${betData.event}`,
+                        type: 'EXPENSE',
+                        walletId,
+                    },
+                });
+                await prisma.wallet.update({
+                    where: { id: walletId },
+                    data: { balance: { decrement: betData.stake } },
+                });
+            }
+            return bet;
         });
     }
     async findAll(userId) {
         return this.prisma.bet.findMany({
             where: { userId },
             orderBy: { createdAt: 'desc' },
+            include: { wallet: true },
         });
     }
     async findOne(userId, id) {
         const bet = await this.prisma.bet.findFirst({
             where: { id, userId },
+            include: { wallet: true },
         });
         if (!bet)
             throw new common_1.NotFoundException('Apuesta no encontrada');
@@ -48,27 +76,71 @@ let BetsService = class BetsService {
         const stake = Number(bet.stake);
         const odds = Number(bet.odds);
         let result = null;
+        let totalRetornado = 0;
         if (resolveBetDto.status === client_1.BetStatus.WON) {
             result = (stake * odds) - stake;
+            totalRetornado = stake * odds;
         }
         else if (resolveBetDto.status === client_1.BetStatus.LOST) {
             result = -stake;
+            totalRetornado = 0;
         }
         else if (resolveBetDto.status === client_1.BetStatus.VOID) {
             result = 0;
+            totalRetornado = stake;
         }
-        return this.prisma.bet.update({
-            where: { id },
-            data: {
-                status: resolveBetDto.status,
-                result,
-            },
+        else if (resolveBetDto.status === client_1.BetStatus.CASHOUT) {
+            if (resolveBetDto.cashoutAmount === undefined) {
+                throw new common_1.BadRequestException('El monto de cashout es requerido');
+            }
+            totalRetornado = resolveBetDto.cashoutAmount;
+            result = totalRetornado - stake;
+        }
+        return this.prisma.$transaction(async (prisma) => {
+            const updatedBet = await prisma.bet.update({
+                where: { id },
+                data: {
+                    status: resolveBetDto.status,
+                    result,
+                },
+            });
+            if (bet.walletId && totalRetornado > 0) {
+                await prisma.transaction.create({
+                    data: {
+                        amount: totalRetornado,
+                        description: `Resultado Apuesta: ${bet.event}`,
+                        type: 'INCOME',
+                        walletId: bet.walletId,
+                    },
+                });
+                await prisma.wallet.update({
+                    where: { id: bet.walletId },
+                    data: { balance: { increment: totalRetornado } },
+                });
+            }
+            return updatedBet;
         });
     }
     async remove(userId, id) {
-        await this.findOne(userId, id);
-        return this.prisma.bet.delete({
-            where: { id },
+        const bet = await this.findOne(userId, id);
+        return this.prisma.$transaction(async (prisma) => {
+            if (bet.status === client_1.BetStatus.PENDING && bet.walletId) {
+                await prisma.transaction.create({
+                    data: {
+                        amount: Number(bet.stake),
+                        description: `Anulación/Eliminación Apuesta: ${bet.event}`,
+                        type: 'INCOME',
+                        walletId: bet.walletId,
+                    },
+                });
+                await prisma.wallet.update({
+                    where: { id: bet.walletId },
+                    data: { balance: { increment: Number(bet.stake) } },
+                });
+            }
+            return prisma.bet.delete({
+                where: { id },
+            });
         });
     }
 };
