@@ -37,11 +37,17 @@ model User {
 
 // --- MÓDULO DE FINANZAS (PLATA) ---
 
+enum WalletType {
+  GENERAL
+  BETTING
+}
+
 model Wallet {
   id                String        @id @default(uuid())
-  name              String // Ej: "Ahorros BCP", "Efectivo", "Binance"
+  name              String        // Ej: "Ahorros BCP", "Efectivo", "Binance"
   balance           Decimal       @default(0) @db.Decimal(15, 2)
   currency          String        @default("PEN")
+  type              WalletType    @default(GENERAL)
   userId            String
   user              User          @relation(fields: [userId], references: [id])
   transactions      Transaction[] @relation("WalletToTransaction")

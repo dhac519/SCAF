@@ -56,7 +56,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </button>
       </div>
 
-      <aside className={`fixed inset-y-0 left-0 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 z-30 w-72 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-r border-slate-200 dark:border-slate-800 transition-transform duration-300 ease-in-out flex flex-col h-screen`}>
+      <aside className={`fixed inset-y-0 left-0 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:sticky md:top-0 md:translate-x-0 z-30 w-72 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-r border-slate-200 dark:border-slate-800 transition-transform duration-300 ease-in-out flex flex-col h-screen`}>
         <div className="p-6 hidden md:flex items-center space-x-3">
           <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
             <span className="text-white font-bold text-lg">D</span>
@@ -64,27 +64,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">DHAC Control</h1>
         </div>
 
-        <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto mt-4 md:mt-2">
-          <p className="px-3 text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Menu Principal</p>
-          {navItems.map((item) => {
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                prefetch={false}
-                onClick={() => setSidebarOpen(false)}
-                className={`flex items-center px-4 py-3.5 text-sm font-semibold rounded-2xl transition-all duration-200 ${
-                  isActive 
-                    ? 'bg-blue-600 shadow-md shadow-blue-500/20 text-white scale-[1.02]' 
-                    : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800/80 dark:hover:text-slate-200 hover:scale-[1.01]'
-                }`}
-              >
-                <item.icon className="h-5 w-5 mr-3 shrink-0" />
-                {item.name}
-              </Link>
-            );
-          })}
+        <nav className="flex-1 overflow-y-auto py-4 mt-4 md:mt-2 custom-scrollbar">
+          <div className="px-4 space-y-2">
+            <p className="px-3 text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Menu Principal</p>
+            {navItems.map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  prefetch={false}
+                  onClick={() => setSidebarOpen(false)}
+                  className={`flex items-center px-4 py-3.5 text-sm font-semibold rounded-2xl transition-all duration-200 ${
+                    isActive 
+                      ? 'bg-blue-600 shadow-md shadow-blue-500/20 text-white' 
+                      : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800/80 dark:hover:text-slate-200'
+                  }`}
+                >
+                  <item.icon className="h-5 w-5 mr-3 shrink-0" />
+                  {item.name}
+                </Link>
+              );
+            })}
+          </div>
         </nav>
 
         <div className="p-4 border-t border-slate-200 dark:border-slate-800">
@@ -96,7 +98,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             onClick={() => {
               logout();
             }}
-            className="flex w-full items-center justify-center px-4 py-3.5 text-sm font-semibold text-red-600 dark:text-red-400 bg-transparent rounded-2xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-all hover:scale-[1.02]"
+            className="flex w-full items-center justify-center px-4 py-3.5 text-sm font-semibold text-red-600 dark:text-red-400 bg-transparent rounded-2xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
           >
             <LogOut className="h-5 w-5 mr-2 shrink-0" />
             Cerrar Sesión

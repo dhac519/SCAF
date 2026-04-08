@@ -3,17 +3,17 @@ export declare class AdminService {
     private prisma;
     constructor(prisma: PrismaService);
     getAllUsers(): Promise<{
+        id: string;
         email: string;
         name: string | null;
-        id: string;
         role: import(".prisma/client").$Enums.Role;
         createdAt: Date;
     }[]>;
     deleteUser(id: string): Promise<{
+        id: string;
         email: string;
         password: string;
         name: string | null;
-        id: string;
         role: import(".prisma/client").$Enums.Role;
         createdAt: Date;
         updatedAt: Date;

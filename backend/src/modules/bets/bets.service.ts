@@ -102,18 +102,28 @@ export class BetsService {
         },
       });
 
-      // Si tiene billetera vinculada y hay retorno, abonar el retorno
-      if (bet.walletId && totalRetornado > 0) {
+      // Encontrar la billetera de apuestas del usuario
+      let bettingWallet = await prisma.wallet.findFirst({
+        where: { userId, type: 'BETTING' },
+      });
+      if (!bettingWallet) {
+        bettingWallet = await prisma.wallet.create({
+          data: { name: 'Mi Casa de Apuestas', type: 'BETTING', userId }
+        });
+      }
+
+      // Si hay retorno, abonar a la billetera de apuestas
+      if (totalRetornado > 0) {
         await prisma.transaction.create({
           data: {
             amount: totalRetornado,
-            description: `Resultado Apuesta: ${bet.event}`,
+            description: `Resultado Apuesta: ${bet.event} (${resolveBetDto.status})`,
             type: 'INCOME',
-            walletId: bet.walletId,
+            walletId: bettingWallet.id,
           },
         });
         await prisma.wallet.update({
-          where: { id: bet.walletId },
+          where: { id: bettingWallet.id },
           data: { balance: { increment: totalRetornado } },
         });
       }

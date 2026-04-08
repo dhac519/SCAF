@@ -6,78 +6,80 @@ export declare class BetsService {
     constructor(prisma: PrismaService);
     create(userId: string, createBetDto: CreateBetDto): Promise<{
         id: string;
-        createdAt: Date;
-        result: import("@prisma/client/runtime/library").Decimal | null;
-        userId: string;
-        walletId: string | null;
         event: string;
         sport: string;
         stake: import("@prisma/client/runtime/library").Decimal;
         odds: import("@prisma/client/runtime/library").Decimal;
         status: import(".prisma/client").$Enums.BetStatus;
+        result: import("@prisma/client/runtime/library").Decimal | null;
+        createdAt: Date;
+        userId: string;
+        walletId: string | null;
     }>;
     findAll(userId: string): Promise<({
         wallet: {
-            name: string;
             id: string;
+            userId: string;
+            name: string;
             balance: import("@prisma/client/runtime/library").Decimal;
             currency: string;
-            userId: string;
+            type: import(".prisma/client").$Enums.WalletType;
         } | null;
     } & {
         id: string;
-        createdAt: Date;
-        result: import("@prisma/client/runtime/library").Decimal | null;
-        userId: string;
-        walletId: string | null;
         event: string;
         sport: string;
         stake: import("@prisma/client/runtime/library").Decimal;
         odds: import("@prisma/client/runtime/library").Decimal;
         status: import(".prisma/client").$Enums.BetStatus;
+        result: import("@prisma/client/runtime/library").Decimal | null;
+        createdAt: Date;
+        userId: string;
+        walletId: string | null;
     })[]>;
     findOne(userId: string, id: string): Promise<{
         wallet: {
-            name: string;
             id: string;
+            userId: string;
+            name: string;
             balance: import("@prisma/client/runtime/library").Decimal;
             currency: string;
-            userId: string;
+            type: import(".prisma/client").$Enums.WalletType;
         } | null;
     } & {
         id: string;
-        createdAt: Date;
-        result: import("@prisma/client/runtime/library").Decimal | null;
-        userId: string;
-        walletId: string | null;
         event: string;
         sport: string;
         stake: import("@prisma/client/runtime/library").Decimal;
         odds: import("@prisma/client/runtime/library").Decimal;
         status: import(".prisma/client").$Enums.BetStatus;
+        result: import("@prisma/client/runtime/library").Decimal | null;
+        createdAt: Date;
+        userId: string;
+        walletId: string | null;
     }>;
     resolve(userId: string, id: string, resolveBetDto: ResolveBetDto): Promise<{
         id: string;
-        createdAt: Date;
-        result: import("@prisma/client/runtime/library").Decimal | null;
-        userId: string;
-        walletId: string | null;
         event: string;
         sport: string;
         stake: import("@prisma/client/runtime/library").Decimal;
         odds: import("@prisma/client/runtime/library").Decimal;
         status: import(".prisma/client").$Enums.BetStatus;
+        result: import("@prisma/client/runtime/library").Decimal | null;
+        createdAt: Date;
+        userId: string;
+        walletId: string | null;
     }>;
     remove(userId: string, id: string): Promise<{
         id: string;
-        createdAt: Date;
-        result: import("@prisma/client/runtime/library").Decimal | null;
-        userId: string;
-        walletId: string | null;
         event: string;
         sport: string;
         stake: import("@prisma/client/runtime/library").Decimal;
         odds: import("@prisma/client/runtime/library").Decimal;
         status: import(".prisma/client").$Enums.BetStatus;
+        result: import("@prisma/client/runtime/library").Decimal | null;
+        createdAt: Date;
+        userId: string;
+        walletId: string | null;
     }>;
 }

@@ -26,9 +26,25 @@ let WalletsService = class WalletsService {
         });
     }
     async findAll(userId) {
+        await this.getBettingWallet(userId);
         return this.prisma.wallet.findMany({
             where: { userId },
         });
+    }
+    async getBettingWallet(userId) {
+        let wallet = await this.prisma.wallet.findFirst({
+            where: { userId, type: 'BETTING' },
+        });
+        if (!wallet) {
+            wallet = await this.prisma.wallet.create({
+                data: {
+                    name: 'Mi Casa de Apuestas',
+                    userId,
+                    type: 'BETTING',
+                },
+            });
+        }
+        return wallet;
     }
     async findOne(userId, id) {
         const wallet = await this.prisma.wallet.findFirst({

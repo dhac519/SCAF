@@ -5,38 +5,51 @@ export declare class WalletsService {
     private readonly prisma;
     constructor(prisma: PrismaService);
     create(userId: string, createWalletDto: CreateWalletDto): Promise<{
-        name: string;
         id: string;
+        name: string;
         balance: import("@prisma/client/runtime/library").Decimal;
         currency: string;
+        type: import(".prisma/client").$Enums.WalletType;
         userId: string;
     }>;
     findAll(userId: string): Promise<{
-        name: string;
         id: string;
+        name: string;
         balance: import("@prisma/client/runtime/library").Decimal;
         currency: string;
+        type: import(".prisma/client").$Enums.WalletType;
         userId: string;
     }[]>;
-    findOne(userId: string, id: string): Promise<{
-        name: string;
+    getBettingWallet(userId: string): Promise<{
         id: string;
+        name: string;
         balance: import("@prisma/client/runtime/library").Decimal;
         currency: string;
+        type: import(".prisma/client").$Enums.WalletType;
+        userId: string;
+    }>;
+    findOne(userId: string, id: string): Promise<{
+        id: string;
+        name: string;
+        balance: import("@prisma/client/runtime/library").Decimal;
+        currency: string;
+        type: import(".prisma/client").$Enums.WalletType;
         userId: string;
     }>;
     update(userId: string, id: string, updateWalletDto: UpdateWalletDto): Promise<{
-        name: string;
         id: string;
+        name: string;
         balance: import("@prisma/client/runtime/library").Decimal;
         currency: string;
+        type: import(".prisma/client").$Enums.WalletType;
         userId: string;
     }>;
     remove(userId: string, id: string): Promise<{
-        name: string;
         id: string;
+        name: string;
         balance: import("@prisma/client/runtime/library").Decimal;
         currency: string;
+        type: import(".prisma/client").$Enums.WalletType;
         userId: string;
     }>;
 }

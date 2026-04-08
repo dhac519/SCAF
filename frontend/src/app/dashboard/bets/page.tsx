@@ -27,6 +27,10 @@ export default function BetsPage() {
   const [cashoutStake, setCashoutStake] = useState<string>('');
   const [cashoutAmount, setCashoutAmount] = useState<string>('');
 
+  const [transferModalOpen, setTransferModalOpen] = useState(false);
+  const [transferAmount, setTransferAmount] = useState('');
+  const [transferTargetId, setTransferTargetId] = useState('');
+
   const [event, setEvent] = useState('');
   const [sport, setSport] = useState('Fútbol');
   const [stake, setStake] = useState('');
@@ -131,8 +135,35 @@ export default function BetsPage() {
     }
   };
 
+  const handleTransfer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const actBettingWallet = wallets.find(w => w.type === 'BETTING');
+    if (!actBettingWallet || !transferTargetId) return;
+    try {
+      await api.post('/transactions', {
+        amount: Number(transferAmount),
+        description: 'Retiro a Cartera desde Casa de Apuestas',
+        type: 'TRANSFER',
+        walletId: actBettingWallet.id,
+        targetWalletId: transferTargetId
+      });
+      setTransferModalOpen(false);
+      setTransferAmount('');
+      setTransferTargetId('');
+      fetchWallets();
+      toast.success('Retiro a cartera completado');
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Error al procesar el retiro');
+    }
+  };
+
   const totalStake = bets.filter(b => b.status === 'PENDING').reduce((acc, b) => acc + Number(b.stake), 0);
   const totalProfit = bets.filter(b => b.status !== 'PENDING').reduce((acc, b) => acc + Number(b.result || 0), 0);
+  const totalGanancias = bets.filter(b => (b.status === 'WON' || b.status === 'CASHOUT') && Number(b.result || 0) > 0).reduce((acc, b) => acc + Number(b.result || 0), 0);
+  const totalPerdidas = bets.filter(b => b.status === 'LOST' || Number(b.result || 0) < 0).reduce((acc, b) => acc + Math.abs(Number(b.result || 0)), 0);
+
+  const bettingWallet = wallets.find(w => w.type === 'BETTING');
+  const generalWallets = wallets.filter(w => w.type !== 'BETTING');
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -150,57 +181,97 @@ export default function BetsPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border border-indigo-100 dark:border-indigo-800/50 rounded-3xl p-6 shadow-sm flex items-center justify-between">
           <div>
-            <p className="text-sm font-semibold text-indigo-600/80 dark:text-indigo-400/80 mb-2 uppercase tracking-wider">Stake en Juego (Pendiente)</p>
-            <h3 className="text-3xl font-black text-indigo-900 dark:text-indigo-300 tabular-nums">S/ {totalStake.toLocaleString('en-US', { minimumFractionDigits: 2 })}</h3>
+            <p className="text-sm font-semibold text-indigo-600/80 dark:text-indigo-400/80 mb-2 uppercase tracking-wider">Pendiente</p>
+            <h3 className="text-2xl font-black text-indigo-900 dark:text-indigo-300 tabular-nums">S/ {totalStake.toLocaleString('en-US', { minimumFractionDigits: 2 })}</h3>
           </div>
-          <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl shadow-sm"><Clock className="w-10 h-10 text-indigo-500" /></div>
+          <div className="p-3 bg-white dark:bg-slate-900 rounded-xl shadow-sm"><Clock className="w-8 h-8 text-indigo-500" /></div>
+        </div>
+
+        <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/50 rounded-3xl p-6 shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-sm font-semibold text-emerald-700/80 dark:text-emerald-400/80 mb-2 uppercase tracking-wider">Ganancias</p>
+            <h3 className="text-2xl font-black text-emerald-700 dark:text-emerald-400 tabular-nums">+S/ {totalGanancias.toLocaleString('en-US', { minimumFractionDigits: 2 })}</h3>
+          </div>
+          <div className="p-3 bg-white dark:bg-slate-900 rounded-xl shadow-sm"><CheckCircle2 className="w-8 h-8 text-emerald-500" /></div>
+        </div>
+
+        <div className="bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800/50 rounded-3xl p-6 shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-sm font-semibold text-rose-700/80 dark:text-rose-400/80 mb-2 uppercase tracking-wider">Pérdidas</p>
+            <h3 className="text-2xl font-black text-rose-700 dark:text-rose-400 tabular-nums">-S/ {totalPerdidas.toLocaleString('en-US', { minimumFractionDigits: 2 })}</h3>
+          </div>
+          <div className="p-3 bg-white dark:bg-slate-900 rounded-xl shadow-sm"><XCircle className="w-8 h-8 text-rose-500" /></div>
         </div>
         
         <div className={`border rounded-3xl p-6 shadow-sm flex items-center justify-between ${totalProfit >= 0 ? 'bg-emerald-50 border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800/50' : 'bg-rose-50 border-rose-200 dark:bg-rose-900/20 dark:border-rose-800/50'}`}>
           <div>
-            <p className={`text-sm font-semibold mb-2 uppercase tracking-wider ${totalProfit >= 0 ? 'text-emerald-700/80 dark:text-emerald-400/80' : 'text-rose-700/80 dark:text-rose-400/80'}`}>Balance Histórico Neto</p>
-            <h3 className={`text-4xl font-black tabular-nums ${totalProfit >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'}`}>
+            <p className={`text-sm font-semibold mb-2 uppercase tracking-wider ${totalProfit >= 0 ? 'text-emerald-700/80 dark:text-emerald-400/80' : 'text-rose-700/80 dark:text-rose-400/80'}`}>Balance Neto</p>
+            <h3 className={`text-2xl font-black tabular-nums ${totalProfit >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'}`}>
               {totalProfit > 0 ? '+' : ''}S/ {totalProfit.toLocaleString('en-US', { minimumFractionDigits: 2 })}
             </h3>
           </div>
-          <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl shadow-sm"><Trophy className={`w-10 h-10 ${totalProfit >= 0 ? 'text-emerald-500' : 'text-rose-500'}`} /></div>
+          <div className="p-3 bg-white dark:bg-slate-900 rounded-xl shadow-sm"><Trophy className={`w-8 h-8 ${totalProfit >= 0 ? 'text-emerald-500' : 'text-rose-500'}`} /></div>
         </div>
       </div>
 
-      {showAddForm && (
-        <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900 border border-purple-200 dark:border-purple-900/50 p-6 sm:p-8 rounded-3xl shadow-xl shadow-purple-900/5 animate-in fade-in slide-in-from-top-4">
-          <h3 className="text-xl font-bold mb-6 text-slate-900 dark:text-white">Registrar Apuesta</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="lg:col-span-2">
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Evento / Partido</label>
-              <input type="text" required value={event} onChange={(e) => setEvent(e.target.value)} className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none transition-all" placeholder="Ej: Real Madrid vs Barcelona" />
+      {bettingWallet && (
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50 rounded-3xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl shadow-sm">
+              <Coins className="w-10 h-10 text-blue-500" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Stake (Monto)</label>
-              <input type="number" step="0.01" required value={stake} onChange={(e) => setStake(e.target.value)} className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none transition-all" placeholder="0.00" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Cuota (Odds)</label>
-              <input type="number" step="0.01" required value={odds} onChange={(e) => setOdds(e.target.value)} className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none transition-all" placeholder="1.85" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Billetera de Descuento (Opcional)</label>
-              <select value={walletId} onChange={(e) => setWalletId(e.target.value)} className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none transition-all">
-                <option value="">No descontar (Solo registro)</option>
-                {wallets.map(w => (
-                  <option key={w.id} value={w.id}>{w.name} (S/ {w.balance})</option>
-                ))}
-              </select>
-            </div>
-            <div className="col-span-full flex justify-end gap-3 mt-4">
-              <button type="button" onClick={() => setShowAddForm(false)} className="px-6 py-3 font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">Cancelar</button>
-              <button type="submit" className="px-8 py-3 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 shadow-md shadow-purple-600/20 transition-all">Guardar</button>
+              <p className="text-sm font-semibold text-blue-700/80 dark:text-blue-400/80 mb-1 uppercase tracking-wider">Mi Saldo: Casa de Apuestas</p>
+              <h3 className="text-3xl font-black text-blue-800 dark:text-blue-300 tabular-nums">S/ {Number(bettingWallet.balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}</h3>
             </div>
           </div>
-        </form>
+          <button 
+            onClick={() => setTransferModalOpen(true)}
+            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-xl shadow-blue-600/20 transition-all flex items-center gap-2 justify-center"
+          >
+            Transferir a Cartera
+          </button>
+        </div>
+      )}
+
+      {showAddForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-4xl rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 animate-in slide-in-from-bottom-4 zoom-in-95">
+            <h3 className="text-2xl font-bold mb-6 text-slate-900 dark:text-white">Registrar Apuesta</h3>
+            <form onSubmit={handleSubmit}>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="lg:col-span-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Evento / Partido</label>
+                  <input type="text" required value={event} onChange={(e) => setEvent(e.target.value)} className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none transition-all" placeholder="Ej: Real Madrid vs Barcelona" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Stake (Monto)</label>
+                  <input type="number" step="0.01" required value={stake} onChange={(e) => setStake(e.target.value)} className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none transition-all" placeholder="0.00" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Cuota (Odds)</label>
+                  <input type="number" step="0.01" required value={odds} onChange={(e) => setOdds(e.target.value)} className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none transition-all" placeholder="1.85" />
+                </div>
+                <div className="lg:col-span-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Billetera de Descuento (Opcional)</label>
+                  <select value={walletId} onChange={(e) => setWalletId(e.target.value)} className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none transition-all">
+                    <option value="">No descontar (Solo registro)</option>
+                    {wallets.map(w => (
+                      <option key={w.id} value={w.id}>{w.name} (S/ {w.balance})</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="col-span-full flex justify-end gap-3 mt-4">
+                  <button type="button" onClick={() => setShowAddForm(false)} className="px-6 py-3 font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">Cancelar</button>
+                  <button type="submit" className="px-8 py-3 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 shadow-md shadow-purple-600/20 transition-all">Guardar</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
 
       <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
@@ -301,6 +372,60 @@ export default function BetsPage() {
                 Confirmar
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {transferModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6 animate-in slide-in-from-bottom-4 zoom-in-95">
+            <h3 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">Transferir a Cartera</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+              Mueve fondos desde tu cuenta de apuestas hacia tus carteras.<br />
+              Disponible: <b>S/ {Number(bettingWallet?.balance || 0).toFixed(2)}</b>
+            </p>
+            <form onSubmit={handleTransfer}>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Monto a Transferir</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-medium">S/</span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    max={Number(bettingWallet?.balance || 0)}
+                    required
+                    value={transferAmount}
+                    onChange={(e) => setTransferAmount(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                    placeholder="0.00"
+                    autoFocus
+                  />
+                </div>
+              </div>
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Cartera Destino</label>
+                <select 
+                  required
+                  value={transferTargetId} 
+                  onChange={(e) => setTransferTargetId(e.target.value)} 
+                  className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                >
+                  <option value="">Selecciona una cartera</option>
+                  {generalWallets.map(w => (
+                    <option key={w.id} value={w.id}>{w.name} (S/ {w.balance})</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex justify-end gap-3">
+                <button type="button" onClick={() => setTransferModalOpen(false)} className="px-5 py-2.5 font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">Cancelar</button>
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-md shadow-blue-600/20 transition-all flex items-center gap-2"
+                >
+                  Transferir
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

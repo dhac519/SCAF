@@ -17,9 +17,30 @@ export class WalletsService {
   }
 
   async findAll(userId: string) {
+    // Aseguramos que la cuenta de apuestas exista
+    await this.getBettingWallet(userId);
+
     return this.prisma.wallet.findMany({
       where: { userId },
     });
+  }
+
+  async getBettingWallet(userId: string) {
+    let wallet = await this.prisma.wallet.findFirst({
+      where: { userId, type: 'BETTING' },
+    });
+
+    if (!wallet) {
+      wallet = await this.prisma.wallet.create({
+        data: {
+          name: 'Mi Casa de Apuestas',
+          userId,
+          type: 'BETTING',
+        },
+      });
+    }
+
+    return wallet;
   }
 
   async findOne(userId: string, id: string) {

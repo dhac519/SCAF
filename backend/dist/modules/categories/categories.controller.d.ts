@@ -5,32 +5,32 @@ export declare class CategoriesController {
     private readonly categoriesService;
     constructor(categoriesService: CategoriesService);
     create(req: any, createCategoryDto: CreateCategoryDto): Promise<{
-        name: string;
         id: string;
+        name: string;
         type: import(".prisma/client").$Enums.TransactionType;
         userId: string;
     }>;
     findAll(req: any): Promise<{
-        name: string;
         id: string;
+        name: string;
         type: import(".prisma/client").$Enums.TransactionType;
         userId: string;
     }[]>;
     findOne(req: any, id: string): Promise<{
-        name: string;
         id: string;
+        name: string;
         type: import(".prisma/client").$Enums.TransactionType;
         userId: string;
     }>;
     update(req: any, id: string, updateCategoryDto: UpdateCategoryDto): Promise<{
-        name: string;
         id: string;
+        name: string;
         type: import(".prisma/client").$Enums.TransactionType;
         userId: string;
     }>;
     remove(req: any, id: string): Promise<{
-        name: string;
         id: string;
+        name: string;
         type: import(".prisma/client").$Enums.TransactionType;
         userId: string;
     }>;

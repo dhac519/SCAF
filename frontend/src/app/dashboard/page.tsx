@@ -10,6 +10,7 @@ interface Wallet {
   name: string;
   balance: string;
   currency: string;
+  type?: string;
 }
 
 interface Transaction {
@@ -72,7 +73,8 @@ export default function DashboardPage() {
     }
   };
 
-  const totalBalance = wallets.reduce((acc, w) => acc + Number(w.balance), 0);
+  const generalWallets = wallets.filter(w => w.type !== 'BETTING');
+  const totalBalance = generalWallets.reduce((acc, w) => acc + Number(w.balance), 0);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -107,7 +109,7 @@ export default function DashboardPage() {
                 <span className="flex items-center text-emerald-300 mr-2">
                   <ArrowUpRight className="h-4 w-4 mr-1" /> Activo
                 </span>
-                Distribuido en {wallets.length} cuentas
+                Distribuido en {generalWallets.length} cuentas
               </div>
             </div>
           </div>
@@ -194,12 +196,12 @@ export default function DashboardPage() {
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {loading && wallets.length === 0 ? (
+          {loading && generalWallets.length === 0 ? (
             Array(3).fill(0).map((_, i) => (
               <div key={i} className="bg-white dark:bg-slate-900 h-36 rounded-3xl animate-pulse border border-slate-100 dark:border-slate-800 shadow-sm"></div>
             ))
-          ) : wallets.length > 0 ? (
-            wallets.map((wallet) => (
+          ) : generalWallets.length > 0 ? (
+            generalWallets.map((wallet) => (
               <div key={wallet.id} className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1">
                 <div className="flex justify-between items-start mb-6">
                   <div className="p-3 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-2xl group-hover:scale-110 transition-transform">

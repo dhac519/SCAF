@@ -104,17 +104,25 @@ let BetsService = class BetsService {
                     result,
                 },
             });
-            if (bet.walletId && totalRetornado > 0) {
+            let bettingWallet = await prisma.wallet.findFirst({
+                where: { userId, type: 'BETTING' },
+            });
+            if (!bettingWallet) {
+                bettingWallet = await prisma.wallet.create({
+                    data: { name: 'Mi Casa de Apuestas', type: 'BETTING', userId }
+                });
+            }
+            if (totalRetornado > 0) {
                 await prisma.transaction.create({
                     data: {
                         amount: totalRetornado,
-                        description: `Resultado Apuesta: ${bet.event}`,
+                        description: `Resultado Apuesta: ${bet.event} (${resolveBetDto.status})`,
                         type: 'INCOME',
-                        walletId: bet.walletId,
+                        walletId: bettingWallet.id,
                     },
                 });
                 await prisma.wallet.update({
-                    where: { id: bet.walletId },
+                    where: { id: bettingWallet.id },
                     data: { balance: { increment: totalRetornado } },
                 });
             }
