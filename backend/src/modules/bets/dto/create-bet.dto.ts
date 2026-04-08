@@ -21,4 +21,9 @@ export class CreateBetDto {
   @IsNumber()
   @IsNotEmpty()
   odds: number;
+
+  @ApiPropertyOptional({ example: 'uuid-billetera', description: 'ID de la billetera origen' })
+  @IsString()
+  @IsOptional()
+  walletId?: string;
 }

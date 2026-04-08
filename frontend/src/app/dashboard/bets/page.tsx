@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
-import { Plus, Target, CheckCircle2, XCircle, MinusCircle, Trophy, Clock } from 'lucide-react';
+import { Plus, Target, CheckCircle2, XCircle, MinusCircle, Trophy, Clock, Trash2, Coins } from 'lucide-react';
 
 interface Bet {
   id: string;
@@ -10,7 +10,7 @@ interface Bet {
   sport: string;
   stake: string;
   odds: string;
-  status: 'PENDING' | 'WON' | 'LOST' | 'VOID';
+  status: 'PENDING' | 'WON' | 'LOST' | 'VOID' | 'CASHOUT';
   result: string | null;
   createdAt: string;
 }
@@ -25,6 +25,8 @@ export default function BetsPage() {
   const [sport, setSport] = useState('Fútbol');
   const [stake, setStake] = useState('');
   const [odds, setOdds] = useState('');
+  const [wallets, setWallets] = useState<any[]>([]);
+  const [walletId, setWalletId] = useState('');
 
   const fetchBets = async () => {
     setLoading(true);
@@ -38,8 +40,18 @@ export default function BetsPage() {
     }
   };
 
+  const fetchWallets = async () => {
+    try {
+      const { data } = await api.get('/wallets');
+      setWallets(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     fetchBets();
+    fetchWallets();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -50,11 +62,13 @@ export default function BetsPage() {
         sport,
         stake: Number(stake),
         odds: Number(odds),
+        ...(walletId ? { walletId } : {})
       });
       setShowAddForm(false);
       setEvent('');
       setStake('');
       setOdds('');
+      setWalletId('');
       fetchBets();
     } catch (err: any) {
       alert(err.response?.data?.message || 'Error al guardar apuesta');
@@ -68,6 +82,33 @@ export default function BetsPage() {
       fetchBets();
     } catch (err) {
       alert('Error resolviendo apuesta');
+    } finally {
+      setResolvingId(null);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm('¿Seguro que deseas eliminar esta apuesta? El dinero descontado será devuelto a tu billetera si sigue en PENDIENTE.')) return;
+    try {
+      await api.delete(`/bets/${id}`);
+      fetchBets();
+    } catch (err) {
+      alert('Error eliminando apuesta');
+    }
+  };
+
+  const handleCashout = async (id: string, stake: string) => {
+    const amount = window.prompt(`¿Cuánto dinero OBTIENES en total al hacer Cashout?\nRecuerda usar formato decimal (ej: 15.50).\nTu stake inicial fue de S/ ${stake}.`);
+    if (amount === null) return;
+    if (amount.trim() === '' || isNaN(Number(amount))) {
+      alert('Monto inválido'); return;
+    }
+    setResolvingId(id);
+    try {
+      await api.patch(`/bets/${id}/resolve`, { status: 'CASHOUT', cashoutAmount: Number(amount) });
+      fetchBets();
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Error procesando cashout');
     } finally {
       setResolvingId(null);
     }
@@ -128,6 +169,15 @@ export default function BetsPage() {
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Cuota (Odds)</label>
               <input type="number" step="0.01" required value={odds} onChange={(e) => setOdds(e.target.value)} className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none transition-all" placeholder="1.85" />
             </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Billetera de Descuento (Opcional)</label>
+              <select value={walletId} onChange={(e) => setWalletId(e.target.value)} className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none transition-all">
+                <option value="">No descontar (Solo registro)</option>
+                {wallets.map(w => (
+                  <option key={w.id} value={w.id}>{w.name} (S/ {w.balance})</option>
+                ))}
+              </select>
+            </div>
             <div className="col-span-full flex justify-end gap-3 mt-4">
               <button type="button" onClick={() => setShowAddForm(false)} className="px-6 py-3 font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">Cancelar</button>
               <button type="submit" className="px-8 py-3 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 shadow-md shadow-purple-600/20 transition-all">Guardar</button>
@@ -163,6 +213,7 @@ export default function BetsPage() {
                         {isWon && <span className="text-emerald-500 flex items-center gap-1.5 ml-2"><CheckCircle2 className="w-4 h-4"/> Ganada</span>}
                         {isLost && <span className="text-rose-500 flex items-center gap-1.5 ml-2"><XCircle className="w-4 h-4"/> Perdida</span>}
                         {bet.status === 'VOID' && <span className="text-slate-500 flex items-center gap-1.5 ml-2"><MinusCircle className="w-4 h-4"/> Nula</span>}
+                        {bet.status === 'CASHOUT' && <span className="text-blue-500 flex items-center gap-1.5 ml-2"><Coins className="w-4 h-4"/> Retirada</span>}
                       </div>
                     </div>
                   </div>
@@ -171,15 +222,20 @@ export default function BetsPage() {
                     {isPending ? (
                       <div className="flex bg-slate-100 dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700">
                         <button disabled={resolvingId === bet.id} onClick={() => handleResolve(bet.id, 'WON')} className="p-2.5 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 rounded-xl transition-all" title="Marcar Ganada"><CheckCircle2 className="w-5 h-5"/></button>
+                        <button disabled={resolvingId === bet.id} onClick={() => handleCashout(bet.id, bet.stake)} className="p-2.5 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-xl transition-all" title="Cashout (Retiro Anticipado)"><Coins className="w-5 h-5"/></button>
                         <button disabled={resolvingId === bet.id} onClick={() => handleResolve(bet.id, 'LOST')} className="p-2.5 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/50 rounded-xl transition-all" title="Marcar Perdida"><XCircle className="w-5 h-5"/></button>
                         <button disabled={resolvingId === bet.id} onClick={() => handleResolve(bet.id, 'VOID')} className="p-2.5 text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-700 shadow-sm rounded-xl transition-all" title="Anular"><MinusCircle className="w-5 h-5"/></button>
+                        <button disabled={resolvingId === bet.id} onClick={() => handleDelete(bet.id)} className="p-2.5 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-xl transition-all ml-2" title="Eliminar"><Trash2 className="w-5 h-5"/></button>
                       </div>
                     ) : (
-                      <div className="text-right">
-                        <span className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1 pb-1">Resultado Neto</span>
-                        <span className={`font-black text-2xl tabular-nums ${isWon ? 'text-emerald-500' : isLost ? 'text-rose-500' : 'text-slate-500'}`}>
-                          {isWon ? '+' : ''} S/ {Number(bet.result).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                        </span>
+                      <div className="flex items-center gap-3">
+                        <div className="text-right">
+                          <span className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1 pb-1">Resultado Neto</span>
+                          <span className={`font-black text-2xl tabular-nums ${Number(bet.result) > 0 ? 'text-emerald-500' : Number(bet.result) < 0 ? 'text-rose-500' : 'text-slate-500'}`}>
+                            {Number(bet.result) > 0 ? '+' : ''} S/ {Number(bet.result).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                          </span>
+                        </div>
+                        <button onClick={() => handleDelete(bet.id)} className="p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl transition-all ml-2" title="Eliminar"><Trash2 className="w-5 h-5"/></button>
                       </div>
                     )}
                   </div>
