@@ -8,8 +8,7 @@ import express from 'express';
 let cachedApp: INestApplication;
 
 async function bootstrap() {
-  const server = express();
-  const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
+  const app = await NestFactory.create(AppModule);
   
   app.enableCors();
 
@@ -32,34 +31,26 @@ async function bootstrap() {
   SwaggerModule.setup('api/docs', app, documentFactory);
 
   await app.init();
-  return { app, server };
+  return app;
 }
 
 // Handler para Vercel
 export default async (req: any, res: any) => {
   try {
     if (!cachedApp) {
-      console.log('Iniciando bootstrap del backend...');
-      const { app } = await bootstrap();
-      cachedApp = app;
-      console.log('Bootstrap completado con éxito.');
+      cachedApp = await bootstrap();
     }
     const server = cachedApp.getHttpAdapter().getInstance();
-    return server(req, res);
+    server(req, res);
   } catch (err: any) {
-    console.error('ERROR CRÍTICO EN EL BACKEND (Vercel):', err.message);
-    console.error('Stack:', err.stack);
-    res.status(500).json({
-      error: 'Error interno del servidor en Vercel',
-      message: err.message,
-      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
-    });
+    console.error('ERROR EN VERCEL:', err.message);
+    res.status(500).send('Error interno del servidor en Vercel');
   }
 };
 
 // Soporte para ejecución local heredado
 if (process.env.NODE_ENV !== 'production') {
-  bootstrap().then(({ app }) => {
+  bootstrap().then((app) => {
     const port = process.env.PORT ?? 4000;
     app.listen(port).then(() => {
       console.log(`Server running on http://localhost:${port}`);
