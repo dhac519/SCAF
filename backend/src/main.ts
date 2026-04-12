@@ -37,12 +37,24 @@ async function bootstrap() {
 
 // Handler para Vercel
 export default async (req: any, res: any) => {
-  if (!cachedApp) {
-    const { app } = await bootstrap();
-    cachedApp = app;
+  try {
+    if (!cachedApp) {
+      console.log('Iniciando bootstrap del backend...');
+      const { app } = await bootstrap();
+      cachedApp = app;
+      console.log('Bootstrap completado con éxito.');
+    }
+    const server = cachedApp.getHttpAdapter().getInstance();
+    return server(req, res);
+  } catch (err: any) {
+    console.error('ERROR CRÍTICO EN EL BACKEND (Vercel):', err.message);
+    console.error('Stack:', err.stack);
+    res.status(500).json({
+      error: 'Error interno del servidor en Vercel',
+      message: err.message,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
+    });
   }
-  const server = cachedApp.getHttpAdapter().getInstance();
-  return server(req, res);
 };
 
 // Soporte para ejecución local heredado
