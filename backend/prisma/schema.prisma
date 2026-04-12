@@ -1,6 +1,7 @@
 // Configuración de Generador y DB
 generator client {
-  provider = "prisma-client-js" // Corregido el typo "prisma-client-id"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
