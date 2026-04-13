@@ -18,6 +18,12 @@ export class BetsController {
     return this.betsService.create(req.user.userId, createBetDto);
   }
 
+  @Get('stats')
+  @ApiOperation({ summary: 'Obtener estadísticas avanzadas de apuestas' })
+  getStats(@Request() req: any) {
+    return this.betsService.getStats(req.user.userId);
+  }
+
   @Get()
   @ApiOperation({ summary: 'Obtener todas las apuestas' })
   findAll(@Request() req: any) {

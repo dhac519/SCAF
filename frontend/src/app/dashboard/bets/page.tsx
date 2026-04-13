@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
-import { Plus, Target, CheckCircle2, XCircle, MinusCircle, Trophy, Clock, Trash2, Coins } from 'lucide-react';
+import { Plus, Target, CheckCircle2, XCircle, MinusCircle, Trophy, Clock, Trash2, Coins, LayoutDashboard, Ticket } from 'lucide-react';
 import { toast } from 'sonner';
+import BettingDashboard from '@/components/BettingDashboard';
 
 interface Bet {
   id: string;
@@ -21,6 +22,8 @@ export default function BetsPage() {
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [resolvingId, setResolvingId] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'list' | 'dashboard'>('list');
+  const [stats, setStats] = useState<any>(null);
 
   const [cashoutModalOpen, setCashoutModalOpen] = useState(false);
   const [cashoutBetId, setCashoutBetId] = useState<string | null>(null);
@@ -59,10 +62,28 @@ export default function BetsPage() {
     }
   };
 
+  const fetchStats = async () => {
+    try {
+      const { data } = await api.get('/bets/stats');
+      setStats(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     fetchBets();
     fetchWallets();
+    fetchStats();
   }, []);
+
+  // Pre-seleccionar la billetera de apuestas por defecto
+  useEffect(() => {
+    if (wallets.length > 0 && !walletId) {
+      const bWallet = wallets.find(w => w.type === 'BETTING');
+      if (bWallet) setWalletId(bWallet.id);
+    }
+  }, [wallets, walletId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,6 +101,8 @@ export default function BetsPage() {
       setOdds('');
       setWalletId('');
       fetchBets();
+      fetchWallets();
+      fetchStats();
       toast.success('Apuesta registrada correctamente');
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Error al guardar apuesta');
@@ -91,6 +114,8 @@ export default function BetsPage() {
     try {
       await api.patch(`/bets/${id}/resolve`, { status });
       fetchBets();
+      fetchWallets();
+      fetchStats();
       toast.success('Estado de la apuesta actualizado');
     } catch (err) {
       toast.error('Error resolviendo apuesta');
@@ -104,6 +129,7 @@ export default function BetsPage() {
     try {
       await api.delete(`/bets/${id}`);
       fetchBets();
+      fetchStats();
       toast.success('Apuesta eliminada');
     } catch (err) {
       toast.error('Error eliminando apuesta');
@@ -126,6 +152,8 @@ export default function BetsPage() {
     try {
       await api.patch(`/bets/${cashoutBetId}/resolve`, { status: 'CASHOUT', cashoutAmount: Number(cashoutAmount) });
       fetchBets();
+      fetchWallets();
+      fetchStats();
       toast.success('Cashout exitoso');
       setCashoutModalOpen(false);
     } catch (err: any) {
@@ -172,6 +200,23 @@ export default function BetsPage() {
           <h1 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">Apuestas</h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">Registra y monitorea tu historial de jugadas.</p>
         </div>
+        <div className="flex bg-white dark:bg-slate-900 p-1 rounded-2xl border border-slate-200 dark:border-slate-800 self-start md:self-auto">
+          <button 
+            onClick={() => setViewMode('list')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${viewMode === 'list' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+          >
+            <Ticket className="w-4 h-4" />
+            Tickets
+          </button>
+          <button 
+            onClick={() => setViewMode('dashboard')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${viewMode === 'dashboard' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+          >
+            <LayoutDashboard className="w-4 h-4" />
+            Performance
+          </button>
+        </div>
+
         <button
           onClick={() => setShowAddForm(!showAddForm)}
           className="flex items-center justify-center gap-2 bg-purple-600 text-white px-5 py-3 rounded-2xl font-bold hover:bg-purple-700 transition-all hover:-translate-y-1 shadow-xl shadow-purple-600/20"
@@ -181,7 +226,11 @@ export default function BetsPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {viewMode === 'dashboard' && stats ? (
+        <BettingDashboard stats={stats} />
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border border-indigo-100 dark:border-indigo-800/50 rounded-3xl p-6 shadow-sm flex items-center justify-between">
           <div>
             <p className="text-sm font-semibold text-indigo-600/80 dark:text-indigo-400/80 mb-2 uppercase tracking-wider">Pendiente</p>
@@ -337,6 +386,8 @@ export default function BetsPage() {
           )}
         </div>
       </div>
+    </>
+  )}
 
       {cashoutModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in">

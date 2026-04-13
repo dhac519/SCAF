@@ -157,4 +157,73 @@ export class BetsService {
       });
     });
   }
+
+  async getStats(userId: string) {
+    const bets = await this.prisma.bet.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    const summary = {
+      totalBets: bets.length,
+      totalStake: 0,
+      totalProfit: 0,
+      winRate: 0,
+      roi: 0,
+    };
+
+    let wonCount = 0;
+    let resolvedCount = 0;
+    const history: any[] = [];
+    let cumulativeProfit = 0;
+
+    const distribution = {
+      WON: 0,
+      LOST: 0,
+      VOID: 0,
+      CASHOUT: 0,
+      PENDING: 0,
+    };
+
+    const sportsMap = new Map();
+
+    bets.forEach((bet) => {
+      const stake = Number(bet.stake);
+      const result = Number(bet.result || 0);
+
+      if (bet.status !== BetStatus.PENDING) {
+        summary.totalStake += stake;
+        summary.totalProfit += result;
+        resolvedCount++;
+        
+        if (bet.status === BetStatus.WON || (bet.status === BetStatus.CASHOUT && result > 0)) {
+          wonCount++;
+        }
+      }
+
+      distribution[bet.status]++;
+
+      cumulativeProfit += result;
+      history.push({
+        date: bet.createdAt,
+        profit: Number(cumulativeProfit.toFixed(2)),
+        event: bet.event,
+      });
+
+      const sportData = sportsMap.get(bet.sport) || { name: bet.sport, profit: 0, count: 0 };
+      sportData.profit += result;
+      sportData.count++;
+      sportsMap.set(bet.sport, sportData);
+    });
+
+    summary.winRate = resolvedCount > 0 ? (wonCount / resolvedCount) * 100 : 0;
+    summary.roi = summary.totalStake > 0 ? (summary.totalProfit / summary.totalStake) * 100 : 0;
+
+    return {
+      summary,
+      history,
+      distribution: Object.entries(distribution).map(([name, value]) => ({ name, value })),
+      sports: Array.from(sportsMap.values()),
+    };
+  }
 }
