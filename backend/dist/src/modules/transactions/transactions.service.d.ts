@@ -16,25 +16,25 @@ export declare class TransactionsService {
     }>;
     findAll(userId: string): Promise<({
         wallet: {
-            name: string;
             id: string;
-            type: import(".prisma/client").$Enums.WalletType;
+            name: string;
             balance: import("@prisma/client/runtime/library").Decimal;
             currency: string;
+            type: import(".prisma/client").$Enums.WalletType;
             userId: string;
         };
         category: {
-            name: string;
             id: string;
+            name: string;
             type: import(".prisma/client").$Enums.TransactionType;
             userId: string;
         } | null;
         targetWallet: {
-            name: string;
             id: string;
-            type: import(".prisma/client").$Enums.WalletType;
+            name: string;
             balance: import("@prisma/client/runtime/library").Decimal;
             currency: string;
+            type: import(".prisma/client").$Enums.WalletType;
             userId: string;
         } | null;
     } & {
@@ -49,25 +49,25 @@ export declare class TransactionsService {
     })[]>;
     findOne(userId: string, id: string): Promise<{
         wallet: {
-            name: string;
             id: string;
-            type: import(".prisma/client").$Enums.WalletType;
+            name: string;
             balance: import("@prisma/client/runtime/library").Decimal;
             currency: string;
+            type: import(".prisma/client").$Enums.WalletType;
             userId: string;
         };
         category: {
-            name: string;
             id: string;
+            name: string;
             type: import(".prisma/client").$Enums.TransactionType;
             userId: string;
         } | null;
         targetWallet: {
-            name: string;
             id: string;
-            type: import(".prisma/client").$Enums.WalletType;
+            name: string;
             balance: import("@prisma/client/runtime/library").Decimal;
             currency: string;
+            type: import(".prisma/client").$Enums.WalletType;
             userId: string;
         } | null;
     } & {

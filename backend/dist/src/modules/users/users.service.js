@@ -66,6 +66,7 @@ let UsersService = UsersService_1 = class UsersService {
                         password: hashedPassword,
                         name: 'Administrador Principal',
                         role: 'ADMIN',
+                        modules: ["FINANCE", "BETS", "INVESTMENTS", "COLLECTIONS"],
                     },
                 });
                 this.logger.log('Default admin user created successfully.');

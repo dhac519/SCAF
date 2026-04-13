@@ -33,6 +33,12 @@ let AdminController = class AdminController {
     deleteUser(id) {
         return this.adminService.deleteUser(id);
     }
+    updateUserModules(id, modules) {
+        return this.adminService.updateUserModules(id, modules);
+    }
+    resetPassword(id, password) {
+        return this.adminService.resetUserPassword(id, password);
+    }
 };
 exports.AdminController = AdminController;
 __decorate([
@@ -54,6 +60,22 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], AdminController.prototype, "deleteUser", null);
+__decorate([
+    (0, common_1.Patch)('users/:id/modules'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)('modules')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Array]),
+    __metadata("design:returntype", void 0)
+], AdminController.prototype, "updateUserModules", null);
+__decorate([
+    (0, common_1.Patch)('users/:id/password'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)('password')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", void 0)
+], AdminController.prototype, "resetPassword", null);
 exports.AdminController = AdminController = __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),

@@ -7,6 +7,7 @@ interface User {
   email: string;
   name?: string;
   role?: string;
+  modules?: string[];
 }
 
 interface AuthState {

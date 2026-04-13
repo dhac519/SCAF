@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/authStore';
-import { LayoutDashboard, Wallet, TrendingUp, Target, LogOut, Menu, X, Loader2, Coins, ShieldAlert } from 'lucide-react';
+import { LayoutDashboard, Wallet, TrendingUp, Target, LogOut, Menu, X, Loader2, Coins, ShieldAlert, Lock } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -27,6 +28,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [isLoading, isAuthenticated, router]);
 
+  const routeModuleMap: Record<string, string> = {
+    '/dashboard/finances': 'FINANCE',
+    '/dashboard/investments': 'INVESTMENTS',
+    '/dashboard/bets': 'BETS',
+    '/dashboard/collections': 'COLLECTIONS',
+  };
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated && user) {
+      // Check if current route requires a module
+      const requiredModule = routeModuleMap[pathname];
+      if (requiredModule && !user.modules?.includes(requiredModule)) {
+        toast.error('No tienes acceso a este módulo');
+        router.push('/dashboard');
+      }
+    }
+  }, [pathname, user, isLoading, isAuthenticated, router]);
+
   if (isLoading || !isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
@@ -37,15 +56,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const baseNavItems = [
     { name: 'General', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Transacciones', href: '/dashboard/transactions', icon: Wallet },
-    { name: 'Inversiones', href: '/dashboard/investments', icon: TrendingUp },
-    { name: 'Apuestas', href: '/dashboard/bets', icon: Target },
-    { name: 'Colecciones', href: '/dashboard/collections', icon: Coins },
+    { name: 'Finanzas', href: '/dashboard/finances', icon: Wallet, module: 'FINANCE' },
+    { name: 'Inversiones', href: '/dashboard/investments', icon: TrendingUp, module: 'INVESTMENTS' },
+    { name: 'Apuestas', href: '/dashboard/bets', icon: Target, module: 'BETS' },
+    { name: 'Colecciones', href: '/dashboard/collections', icon: Coins, module: 'COLLECTIONS' },
   ];
 
+  const filteredNavItems = baseNavItems.filter(item => 
+    !item.module || user?.modules?.includes(item.module)
+  );
+
   const navItems = user?.role === 'ADMIN' 
-    ? [...baseNavItems, { name: 'Admin Panel', href: '/dashboard/admin', icon: ShieldAlert }] 
-    : baseNavItems;
+    ? [...filteredNavItems, { name: 'Admin Panel', href: '/dashboard/admin', icon: ShieldAlert }] 
+    : filteredNavItems;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col md:flex-row font-sans">

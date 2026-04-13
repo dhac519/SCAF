@@ -4,74 +4,74 @@ export declare class CollectionsController {
     private readonly collectionsService;
     constructor(collectionsService: CollectionsService);
     createCategory(dto: CreateCategoryDto, req: any): Promise<{
-        name: string;
         id: string;
+        name: string;
         userId: string;
     }>;
     getCategories(req: any): Promise<({
         subcategories: {
-            name: string;
             id: string;
+            name: string;
             userId: string;
             categoryId: string;
         }[];
     } & {
-        name: string;
         id: string;
+        name: string;
         userId: string;
     })[]>;
     createSubcategory(dto: CreateSubcategoryDto, req: any): Promise<{
-        name: string;
         id: string;
+        name: string;
         userId: string;
         categoryId: string;
     }>;
     createItem(dto: CreateItemDto, req: any): Promise<{
-        name: string;
         id: string;
+        name: string;
         createdAt: Date;
         year: number | null;
         userId: string;
         categoryId: string;
-        subcategoryId: string | null;
         quality: string | null;
-        estimatedValue: import("@prisma/client/runtime/library").Decimal | null;
         quantity: number;
+        estimatedValue: import("@prisma/client/runtime/library").Decimal | null;
+        subcategoryId: string | null;
     }>;
     getItems(req: any): Promise<({
         category: {
-            name: string;
             id: string;
+            name: string;
             userId: string;
         };
         subcategory: {
-            name: string;
             id: string;
+            name: string;
             userId: string;
             categoryId: string;
         } | null;
     } & {
-        name: string;
         id: string;
+        name: string;
         createdAt: Date;
         year: number | null;
         userId: string;
         categoryId: string;
-        subcategoryId: string | null;
         quality: string | null;
-        estimatedValue: import("@prisma/client/runtime/library").Decimal | null;
         quantity: number;
+        estimatedValue: import("@prisma/client/runtime/library").Decimal | null;
+        subcategoryId: string | null;
     })[]>;
     removeItem(id: string, req: any): Promise<{
-        name: string;
         id: string;
+        name: string;
         createdAt: Date;
         year: number | null;
         userId: string;
         categoryId: string;
-        subcategoryId: string | null;
         quality: string | null;
-        estimatedValue: import("@prisma/client/runtime/library").Decimal | null;
         quantity: number;
+        estimatedValue: import("@prisma/client/runtime/library").Decimal | null;
+        subcategoryId: string | null;
     }>;
 }
