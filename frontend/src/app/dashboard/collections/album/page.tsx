@@ -120,7 +120,6 @@ export default function AlbumHubPage() {
     isCustom = true;
     customTitle = 'Objetos Sin Subcategoría';
     customItems = itemsWithoutSub;
-    customItems = itemsWithoutSub;
   }
 
   // --- CheckList Computed Vars ---
