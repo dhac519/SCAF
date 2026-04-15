@@ -13,9 +13,10 @@ import { BetsModule } from './modules/bets/bets.module';
 import { CollectionsModule } from './modules/collections/collections.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { SummaryModule } from './modules/summary/summary.module';
+import { TipstersModule } from './modules/tipsters/tipsters.module';
 
 @Module({
-  imports: [AuthModule, UsersModule, PrismaModule, WalletsModule, CategoriesModule, TransactionsModule, InvestmentsModule, BetsModule, CollectionsModule, AdminModule, SummaryModule],
+  imports: [AuthModule, UsersModule, PrismaModule, WalletsModule, CategoriesModule, TransactionsModule, InvestmentsModule, BetsModule, CollectionsModule, AdminModule, SummaryModule, TipstersModule],
   controllers: [AppController],
   providers: [AppService],
 })

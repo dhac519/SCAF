@@ -16,12 +16,13 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
     setError('');
     setLoading(true);
 
     try {
       await api.post('/auth/register', { name, email, password });
-      router.push('/login');
+      router.push(`/login?email=${encodeURIComponent(email)}`);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Error al registrar la cuenta');
     } finally {

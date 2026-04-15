@@ -20,6 +20,7 @@ export declare class SummaryController {
             pendingBets: number;
             collectionsCount: number;
             totalBettingProfit: number;
+            tipsterCurrentBank: number;
         };
         latestTransactions: ({
             wallet: {

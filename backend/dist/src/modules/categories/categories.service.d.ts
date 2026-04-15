@@ -5,32 +5,32 @@ export declare class CategoriesService {
     private readonly prisma;
     constructor(prisma: PrismaService);
     create(userId: string, createCategoryDto: CreateCategoryDto): Promise<{
-        id: string;
         name: string;
+        id: string;
         type: import(".prisma/client").$Enums.TransactionType;
         userId: string;
     }>;
     findAll(userId: string): Promise<{
-        id: string;
         name: string;
+        id: string;
         type: import(".prisma/client").$Enums.TransactionType;
         userId: string;
     }[]>;
     findOne(userId: string, id: string): Promise<{
-        id: string;
         name: string;
+        id: string;
         type: import(".prisma/client").$Enums.TransactionType;
         userId: string;
     }>;
     update(userId: string, id: string, updateCategoryDto: UpdateCategoryDto): Promise<{
-        id: string;
         name: string;
+        id: string;
         type: import(".prisma/client").$Enums.TransactionType;
         userId: string;
     }>;
     remove(userId: string, id: string): Promise<{
-        id: string;
         name: string;
+        id: string;
         type: import(".prisma/client").$Enums.TransactionType;
         userId: string;
     }>;

@@ -35,6 +35,9 @@ model User {
   collectionCategories    CollectionCategory[]
   collectionSubcategories CollectionSubcategory[]
   collectionItems         CollectionItem[]
+  // Tipster Module
+  tipsterBank             TipsterBank?
+  tipsterBets             TipsterBet[]
 }
 
 // --- MÓDULO DE FINANZAS (PLATA) ---
@@ -163,4 +166,37 @@ model CollectionItem {
   userId         String
   user           User          @relation(fields: [userId], references: [id])
   createdAt      DateTime      @default(now())
+}
+
+// --- MÓDULO GESTIÓN DE BANKROLL (TIPSTERS) ---
+
+model TipsterBank {
+  id          String   @id @default(uuid())
+  initialBank Decimal  @db.Decimal(15, 2)
+  currentBank Decimal  @db.Decimal(15, 2)
+  unitValue   Decimal  @default(100) @db.Decimal(15, 2) // Valor inicial de la unidad (referencia)
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id])
+  updatedAt   DateTime @updatedAt
+}
+
+model TipsterBet {
+  id               String    @id @default(uuid())
+  date             DateTime  @default(now())
+  tipster          String    // Ej: "Sergi", "Personalizado"
+  event            String    // "Jodar", "Palomero"
+  status           BetStatus @default(PENDING) // Usamos el enum existente de Bets (PENDING, WON, LOST, VOID, CASHOUT)
+  
+  // Parámetros de ingreso
+  stake            Decimal   @db.Decimal(15, 2) // Stake indicado por el tipster
+  odds             Decimal   @db.Decimal(5, 2)  // Cuota
+  
+  // Resultados calculados
+  unitsProfit      Decimal?  @db.Decimal(15, 2) // Unidades G/P (e.g. +0.66, -1.0)
+  amountWagered    Decimal   @default(0) @db.Decimal(15, 2) // Dinero apostado real (= Stake * UnitValue o asig explícitamente)
+  realProfit       Decimal?  @db.Decimal(15, 2) // Ganancia / Pérdida en dinero
+  cumulativeBalance Decimal? @db.Decimal(15, 2) // Estado del bank histórico tras esta apuesta
+  
+  userId           String
+  user             User      @relation(fields: [userId], references: [id])
 }

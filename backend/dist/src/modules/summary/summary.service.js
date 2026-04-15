@@ -64,6 +64,9 @@ let SummaryService = class SummaryService {
             where: { userId, status: { in: ['WON', 'LOST', 'CASHOUT'] } },
             _sum: { result: true },
         });
+        const tipsterBank = await this.prisma.tipsterBank.findUnique({
+            where: { userId }
+        });
         return {
             distribution: [
                 { label: 'Efectivo', value: totalCash, color: '#3b82f6' },
@@ -78,6 +81,7 @@ let SummaryService = class SummaryService {
                 pendingBets: pendingBets.length,
                 collectionsCount: collectionItems.length,
                 totalBettingProfit: Number(totalProfitResult._sum.result || 0),
+                tipsterCurrentBank: Number(tipsterBank?.currentBank || 0),
             },
             latestTransactions: await this.prisma.transaction.findMany({
                 where: { wallet: { userId } },

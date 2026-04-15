@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/authStore';
-import { LayoutDashboard, Wallet, TrendingUp, Target, LogOut, Menu, X, Loader2, Coins, ShieldAlert, Lock } from 'lucide-react';
+import { LayoutDashboard, Wallet, TrendingUp, Target, LogOut, Menu, X, Loader2, Coins, ShieldAlert, Lock, Activity } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -33,6 +33,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     '/dashboard/investments': 'INVESTMENTS',
     '/dashboard/bets': 'BETS',
     '/dashboard/collections': 'COLLECTIONS',
+    '/dashboard/tipster-bankroll': 'TIPSTER_BANKROLL',
   };
 
   useEffect(() => {
@@ -59,8 +60,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: 'Finanzas', href: '/dashboard/finances', icon: Wallet, module: 'FINANCE' },
     { name: 'Inversiones', href: '/dashboard/investments', icon: TrendingUp, module: 'INVESTMENTS' },
     { name: 'Apuestas', href: '/dashboard/bets', icon: Target, module: 'BETS' },
+    { name: 'Tipsters', href: '/dashboard/tipster-bankroll', icon: Activity, module: 'TIPSTER_BANKROLL' },
     { name: 'Colecciones', href: '/dashboard/collections', icon: Coins, module: 'COLLECTIONS' },
   ];
+
+  // We add Analitica under General ONLY if the user has at least some modules (like Finance, Bets, etc)
+  const hasMultipleModules = (user?.modules?.length || 0) > 0;
+  if (hasMultipleModules) {
+    baseNavItems.splice(1, 0, { name: 'Analítica Global', href: '/dashboard/analytics', icon: TrendingUp } as any);
+  }
 
   const filteredNavItems = baseNavItems.filter(item => 
     !item.module || user?.modules?.includes(item.module)

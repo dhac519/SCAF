@@ -20,6 +20,7 @@ export declare class SummaryService {
             pendingBets: number;
             collectionsCount: number;
             totalBettingProfit: number;
+            tipsterCurrentBank: number;
         };
         latestTransactions: ({
             wallet: {

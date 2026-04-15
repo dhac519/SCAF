@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { useAuthStore } from '@/store/authStore';
 import { api } from '@/lib/api';
 import { Loader2, Mail, Lock, ArrowRight } from 'lucide-react';
+import { toast } from 'sonner';
+import { useEffect } from 'react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -14,6 +16,15 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const emailParam = params.get('email');
+    if (emailParam) {
+       setEmail(emailParam);
+       toast.success('Cuenta registrada correctamente, ingresa tu contraseña');
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,6 +86,11 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   required
                 />
+              </div>
+              <div className="flex justify-end mt-2">
+                <button type="button" onClick={() => toast.info('Si olvidaste tu contraseña, por favor comunícate con el Administrador', { duration: 5000 })} className="text-xs font-semibold text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
+                  ¿Olvidaste tu contraseña?
+                </button>
               </div>
             </div>
 
