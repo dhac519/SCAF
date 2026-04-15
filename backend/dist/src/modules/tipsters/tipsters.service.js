@@ -134,6 +134,60 @@ let TipstersService = class TipstersService {
             return updatedBet;
         });
     }
+    async updateBet(userId, id, updateData) {
+        return this.prisma.$transaction(async (prisma) => {
+            const bet = await prisma.tipsterBet.findFirst({ where: { id, userId } });
+            if (!bet)
+                throw new common_1.NotFoundException('Pronóstico no encontrado');
+            const bank = await this.getOrCreateBank(userId);
+            let newCurrentBank = Number(bank.currentBank);
+            if (bet.status !== client_1.BetStatus.PENDING && bet.realProfit !== null) {
+                newCurrentBank -= Number(bet.realProfit);
+            }
+            const status = updateData.status !== undefined ? updateData.status : bet.status;
+            const stake = updateData.stake !== undefined ? Number(updateData.stake) : Number(bet.stake);
+            const odds = updateData.odds !== undefined ? Number(updateData.odds) : Number(bet.odds);
+            const tipster = updateData.tipster !== undefined ? updateData.tipster : bet.tipster;
+            const event = updateData.event !== undefined ? updateData.event : bet.event;
+            const amountWagered = stake * Number(bank.unitValue);
+            let unitsProfit = null;
+            let realProfit = null;
+            if (status === client_1.BetStatus.WON) {
+                unitsProfit = stake * (odds - 1);
+                realProfit = amountWagered * (odds - 1);
+            }
+            else if (status === client_1.BetStatus.LOST) {
+                unitsProfit = -stake;
+                realProfit = -amountWagered;
+            }
+            else if (status === client_1.BetStatus.VOID) {
+                unitsProfit = 0;
+                realProfit = 0;
+            }
+            if (realProfit !== null) {
+                newCurrentBank += realProfit;
+            }
+            const updatedBet = await prisma.tipsterBet.update({
+                where: { id },
+                data: {
+                    tipster,
+                    event,
+                    stake,
+                    odds,
+                    status,
+                    amountWagered,
+                    unitsProfit,
+                    realProfit,
+                    cumulativeBalance: newCurrentBank
+                }
+            });
+            await prisma.tipsterBank.update({
+                where: { id: bank.id },
+                data: { currentBank: newCurrentBank }
+            });
+            return updatedBet;
+        });
+    }
     async findAll(userId) {
         return this.prisma.tipsterBet.findMany({
             where: { userId },

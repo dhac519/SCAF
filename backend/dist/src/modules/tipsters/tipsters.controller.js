@@ -75,6 +75,9 @@ let TipstersController = class TipstersController {
     updateBank(req, updateBankDto) {
         return this.tipstersService.updateBank(req.user.userId, updateBankDto);
     }
+    update(req, id, updateData) {
+        return this.tipstersService.updateBet(req.user.userId, id, updateData);
+    }
     updateStatus(req, id, status) {
         return this.tipstersService.updateBetStatus(req.user.userId, id, status);
     }
@@ -134,6 +137,15 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", void 0)
 ], TipstersController.prototype, "updateBank", null);
+__decorate([
+    (0, common_1.Patch)(':id'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, Object]),
+    __metadata("design:returntype", void 0)
+], TipstersController.prototype, "update", null);
 __decorate([
     (0, common_1.Patch)(':id/status'),
     __param(0, (0, common_1.Request)()),

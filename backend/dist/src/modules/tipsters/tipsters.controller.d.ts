@@ -77,6 +77,20 @@ export declare class TipstersController {
         unitValue: import("@prisma/client/runtime/library").Decimal;
         updatedAt: Date;
     }>;
+    update(req: any, id: string, updateData: any): Promise<{
+        id: string;
+        date: Date;
+        tipster: string;
+        event: string;
+        status: import(".prisma/client").$Enums.BetStatus;
+        stake: import("@prisma/client/runtime/library").Decimal;
+        odds: import("@prisma/client/runtime/library").Decimal;
+        unitsProfit: import("@prisma/client/runtime/library").Decimal | null;
+        amountWagered: import("@prisma/client/runtime/library").Decimal;
+        realProfit: import("@prisma/client/runtime/library").Decimal | null;
+        cumulativeBalance: import("@prisma/client/runtime/library").Decimal | null;
+        userId: string;
+    }>;
     updateStatus(req: any, id: string, status: BetStatus): Promise<{
         id: string;
         date: Date;

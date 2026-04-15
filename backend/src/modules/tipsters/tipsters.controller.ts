@@ -83,6 +83,11 @@ export class TipstersController {
     return this.tipstersService.updateBank(req.user.userId, updateBankDto);
   }
 
+  @Patch(':id')
+  update(@Request() req: any, @Param('id') id: string, @Body() updateData: any) {
+    return this.tipstersService.updateBet(req.user.userId, id, updateData);
+  }
+
   @Patch(':id/status')
   updateStatus(@Request() req: any, @Param('id') id: string, @Body('status') status: BetStatus) {
     return this.tipstersService.updateBetStatus(req.user.userId, id, status);

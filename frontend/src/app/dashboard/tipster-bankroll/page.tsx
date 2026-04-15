@@ -41,6 +41,8 @@ export default function TipsterBankrollPage() {
   
   const [showModal, setShowModal] = useState(false);
   const [newBet, setNewBet] = useState({ tipster: '', event: '', stake: '', odds: '' });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   const [showConfigModal, setShowConfigModal] = useState(false);
   const [bankConfig, setBankConfig] = useState({ initialBank: '', unitValue: '' });
@@ -95,36 +97,55 @@ export default function TipsterBankrollPage() {
     }
   }, [dashboardData?.bank?.initial, dashboardData?.bank?.unitValue]);
 
+  const handleEditClick = (bet: any) => {
+    setEditingId(bet.id);
+    setNewBet({ tipster: bet.tipster, event: bet.event, stake: bet.stake.toString(), odds: bet.odds.toString() });
+    setShowModal(true);
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setDeleteConfirmId(id);
+  };
+
+  const handleDeleteBet = async () => {
+    if (!deleteConfirmId) return;
+    try {
+      await api.delete(`/tipsters/${deleteConfirmId}`);
+      toast.success('Pronóstico eliminado');
+      loadData();
+    } catch (error) {
+      toast.error('Error al eliminar pronóstico');
+    } finally {
+      setDeleteConfirmId(null);
+    }
+  };
+
   const handleCreateBet = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await api.post('/tipsters', {
-        tipster: newBet.tipster,
-        event: newBet.event,
-        stake: Number(newBet.stake),
-        odds: Number(newBet.odds)
-      });
-      toast.success('Pronóstico añadido');
+      if (editingId) {
+        await api.patch(`/tipsters/${editingId}`, {
+          tipster: newBet.tipster,
+          event: newBet.event,
+          stake: Number(newBet.stake),
+          odds: Number(newBet.odds)
+        });
+        toast.success('Pronóstico actualizado');
+        setEditingId(null);
+      } else {
+        await api.post('/tipsters', {
+          tipster: newBet.tipster,
+          event: newBet.event,
+          stake: Number(newBet.stake),
+          odds: Number(newBet.odds)
+        });
+        toast.success('Pronóstico añadido');
+      }
       setShowModal(false);
       setNewBet({ tipster: '', event: '', stake: '', odds: '' });
       loadData();
     } catch (error) {
       toast.error('Error al guardar pronóstico');
-    }
-  };
-
-  const handleSeedData = async () => {
-    const isConfirmed = window.confirm("¿Seguro que deseas insertar 45 pronósticos aleatorios de meses pasados?");
-    if (!isConfirmed) return;
-    
-    setIsLoading(true);
-    try {
-      await api.post('/tipsters/seed');
-      toast.success('45 datos expandidos generados con éxito');
-      await loadData();
-    } catch (error) {
-      toast.error('Error al generar datos de prueba');
-      setIsLoading(false);
     }
   };
 
@@ -310,12 +331,22 @@ export default function TipsterBankrollPage() {
       ) : (
         <>
           {activeTab === 'dashboard' && <DashboardTab dynamicStats={dynamicStats} bank={bank} uniqueTipsters={uniqueTipsters} uniqueMonths={uniqueMonths} filterTipster={filterTipster} setFilterTipster={setFilterTipster} filterMonth={filterMonth} setFilterMonth={setFilterMonth} filteredBets={filteredBets} />}
-          {activeTab === 'registro' && <RegistroTab bets={bets} handleExportCSV={handleExportCSV} handleSeedData={handleSeedData} setShowModal={setShowModal} handleUpdateStatus={handleUpdateStatus} />}
+          {activeTab === 'registro' && <RegistroTab bets={bets} handleExportCSV={handleExportCSV} setShowModal={setShowModal} handleUpdateStatus={handleUpdateStatus} handleEditClick={handleEditClick} handleDeleteClick={handleDeleteClick} />}
           {activeTab === 'ranking' && <RankingTab ranking={ranking} />}
         </>
       )}
 
-      <ActionModals showModal={showModal} setShowModal={setShowModal} showConfigModal={showConfigModal} setShowConfigModal={setShowConfigModal} handleCreateBet={handleCreateBet} handleUpdateBank={handleUpdateBank} newBet={newBet} setNewBet={setNewBet} bankConfig={bankConfig} setBankConfig={setBankConfig} dashboardData={dashboardData} />
+      <ActionModals 
+        showModal={showModal} setShowModal={setShowModal} 
+        showConfigModal={showConfigModal} setShowConfigModal={setShowConfigModal} 
+        handleCreateBet={handleCreateBet} handleUpdateBank={handleUpdateBank} 
+        newBet={newBet} setNewBet={setNewBet} 
+        bankConfig={bankConfig} setBankConfig={setBankConfig} 
+        dashboardData={dashboardData} 
+        isEditing={!!editingId} setEditingId={setEditingId} 
+        deleteConfirmId={deleteConfirmId} setDeleteConfirmId={setDeleteConfirmId} 
+        handleDeleteBet={handleDeleteBet} 
+      />
     </div>
   );
 }
