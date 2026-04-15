@@ -120,10 +120,14 @@ export default function AlbumHubPage() {
     isCustom = true;
     customTitle = 'Objetos Sin Subcategoría';
     customItems = itemsWithoutSub;
+    customItems = itemsWithoutSub;
   }
 
-  // --- VIEW 1: HUB ---
-  if (!activeSeries) {
+  // --- CheckList Computed Vars ---
+  const currentSeries = getSeriesData();
+  const { obtained: obtainedCount, total: totalSlots } = activeSeries && currentSeries ? getOwnedCoinCount(activeSeries) : { obtained: 0, total: 0 };
+  const extraOwnedCoins = currentSeries ? items.filter(i => i.subcategory?.name === currentSeries.title && !currentSeries.items.some((pre: any) => pre.name === i.name)) : [];
+
   // --- Dynamic Return ---
   return (
     <>
