@@ -33,11 +33,11 @@ export function ActionModals({
                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Cuota (ODD)</label>
-                    <input required type="number" step="0.01" value={newBet.odds} onChange={e => setNewBet({...newBet, odds: e.target.value})} className="w-full bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-4 py-3 rounded-xl border-none focus:ring-2 focus:ring-blue-500" placeholder="Ej. 1.55" />
+                    <input required type="number" step="any" value={newBet.odds} onChange={e => setNewBet({...newBet, odds: e.target.value})} className="w-full bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-4 py-3 rounded-xl border-none focus:ring-2 focus:ring-blue-500" placeholder="Ej. 1.55" />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Stake</label>
-                    <input required type="number" step="0.1" value={newBet.stake} onChange={e => setNewBet({...newBet, stake: e.target.value})} className="w-full bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-4 py-3 rounded-xl border-none focus:ring-2 focus:ring-blue-500" placeholder="Ej. 1" />
+                    <input required type="number" step="any" value={newBet.stake} onChange={e => setNewBet({...newBet, stake: e.target.value})} className="w-full bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-4 py-3 rounded-xl border-none focus:ring-2 focus:ring-blue-500" placeholder="Ej. 1" />
                     <p className="text-[10px] text-slate-400 mt-1 font-medium">Equivale a: <span className="font-bold text-slate-700 dark:text-slate-300">S/ {newBet.stake ? (Number(newBet.stake) * (dashboardData?.bank?.unitValue || 100)).toLocaleString() : '0'}</span></p>
                   </div>
                </div>

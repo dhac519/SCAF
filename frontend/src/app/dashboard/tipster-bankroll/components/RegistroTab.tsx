@@ -120,8 +120,8 @@ export function RegistroTab({
                        <td className="px-4 py-3 text-slate-500">{new Date(b.date).toLocaleDateString()}</td>
                        <td className="px-4 py-3">{b.tipster}</td>
                        <td className="px-4 py-3 text-slate-900 dark:text-white max-w-[200px] truncate" title={b.event}>{b.event}</td>
-                       <td className="px-4 py-3 text-center">{Number(b.odds).toFixed(2)}</td>
-                       <td className="px-4 py-3 text-center">{Number(b.stake).toFixed(1)}</td>
+                       <td className="px-4 py-3 text-center">{parseFloat(Number(b.odds).toFixed(6))}</td>
+                       <td className="px-4 py-3 text-center">{parseFloat(Number(b.stake).toFixed(6))}</td>
                        <td className="px-4 py-3 text-center">
                          {b.status === 'PENDING' ? (
                            <div className="flex gap-1 justify-center">

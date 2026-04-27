@@ -163,8 +163,8 @@ export function DashboardTab({ dynamicStats, bank, uniqueTipsters, uniqueMonths,
                         {[...filteredBets].slice(-5).reverse().map((b: any) => (
                            <tr key={b.id} className="hover:bg-slate-50 dark:hover:bg-slate-800">
                               <td className="px-4 py-3 max-w-[150px] truncate" title={b.event}>{b.event}</td>
-                              <td className="px-4 py-3 text-center text-blue-500">{Number(b.odds).toFixed(2)}</td>
-                              <td className="px-4 py-3 text-center text-amber-500">{Number(b.stake).toFixed(1)}</td>
+                              <td className="px-4 py-3 text-center text-blue-500">{parseFloat(Number(b.odds).toFixed(6))}</td>
+                              <td className="px-4 py-3 text-center text-amber-500">{parseFloat(Number(b.stake).toFixed(6))}</td>
                               <td className="px-4 py-3 text-center">
                                  <span className={`px-2 py-1 rounded-md text-[10px] font-black uppercase
                                     ${b.status === 'WON' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30' : ''}

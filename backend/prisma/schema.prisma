@@ -263,14 +263,14 @@ model TipsterBet {
   status           BetStatus @default(PENDING) // Usamos el enum existente de Bets (PENDING, WON, LOST, VOID, CASHOUT)
   
   // Parámetros de ingreso
-  stake            Decimal   @db.Decimal(15, 2) // Stake indicado por el tipster
-  odds             Decimal   @db.Decimal(5, 2)  // Cuota
+  stake            Decimal   @db.Decimal(20, 8) // Stake indicado por el tipster
+  odds             Decimal   @db.Decimal(20, 8)  // Cuota
   
   // Resultados calculados
-  unitsProfit      Decimal?  @db.Decimal(15, 2) // Unidades G/P (e.g. +0.66, -1.0)
-  amountWagered    Decimal   @default(0) @db.Decimal(15, 2) // Dinero apostado real (= Stake * UnitValue o asig explícitamente)
-  realProfit       Decimal?  @db.Decimal(15, 2) // Ganancia / Pérdida en dinero
-  cumulativeBalance Decimal? @db.Decimal(15, 2) // Estado del bank histórico tras esta apuesta
+  unitsProfit      Decimal?  @db.Decimal(20, 8) // Unidades G/P (e.g. +0.66, -1.0)
+  amountWagered    Decimal   @default(0) @db.Decimal(20, 8) // Dinero apostado real (= Stake * UnitValue o asig explícitamente)
+  realProfit       Decimal?  @db.Decimal(20, 8) // Ganancia / Pérdida en dinero
+  cumulativeBalance Decimal? @db.Decimal(20, 8) // Estado del bank histórico tras esta apuesta
   
   userId           String
   user             User      @relation(fields: [userId], references: [id])
