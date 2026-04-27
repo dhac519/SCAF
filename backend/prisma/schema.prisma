@@ -247,9 +247,9 @@ model CollectionItem {
 
 model TipsterBank {
   id          String   @id @default(uuid())
-  initialBank Decimal  @db.Decimal(15, 2)
-  currentBank Decimal  @db.Decimal(15, 2)
-  unitValue   Decimal  @default(100) @db.Decimal(15, 2) // Valor inicial de la unidad (referencia)
+  initialBank Decimal  @db.Decimal(20, 8)
+  currentBank Decimal  @db.Decimal(20, 8)
+  unitValue   Decimal  @default(100) @db.Decimal(20, 8) // Valor inicial de la unidad (referencia)
   userId      String   @unique
   user        User     @relation(fields: [userId], references: [id])
   updatedAt   DateTime @updatedAt
