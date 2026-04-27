@@ -79,7 +79,7 @@ export class TipstersController {
   }
   
   @Patch('bank')
-  updateBank(@Request() req: any, @Body() updateBankDto: { currentBank?: number, unitValue?: number }) {
+  updateBank(@Request() req: any, @Body() updateBankDto: { initialBank?: number, unitValue?: number }) {
     return this.tipstersService.updateBank(req.user.userId, updateBankDto);
   }
 

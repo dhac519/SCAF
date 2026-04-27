@@ -34,10 +34,12 @@ let TipstersService = class TipstersService {
     }
     async updateBank(userId, data) {
         const bank = await this.getOrCreateBank(userId);
-        return this.prisma.tipsterBank.update({
+        const updated = await this.prisma.tipsterBank.update({
             where: { id: bank.id },
             data,
         });
+        await this.recalculateBalances(userId, this.prisma);
+        return updated;
     }
     async createBet(userId, createTipsterBetDto) {
         return this.prisma.$transaction(async (prisma) => {

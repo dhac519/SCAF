@@ -6,7 +6,6 @@ export declare class TipstersController {
     constructor(tipstersService: TipstersService);
     create(req: any, createTipsterBetDto: CreateTipsterBetDto): Promise<{
         id: string;
-        userId: string;
         date: Date;
         tipster: string;
         event: string;
@@ -17,13 +16,13 @@ export declare class TipstersController {
         amountWagered: import("@prisma/client/runtime/library").Decimal;
         realProfit: import("@prisma/client/runtime/library").Decimal | null;
         cumulativeBalance: import("@prisma/client/runtime/library").Decimal | null;
+        userId: string;
     }>;
     seedFakeData(req: any): Promise<{
         message: string;
     }>;
     findAll(req: any): Promise<{
         id: string;
-        userId: string;
         date: Date;
         tipster: string;
         event: string;
@@ -34,6 +33,7 @@ export declare class TipstersController {
         amountWagered: import("@prisma/client/runtime/library").Decimal;
         realProfit: import("@prisma/client/runtime/library").Decimal | null;
         cumulativeBalance: import("@prisma/client/runtime/library").Decimal | null;
+        userId: string;
     }[]>;
     getDashboard(req: any): Promise<{
         bank: {
@@ -67,7 +67,7 @@ export declare class TipstersController {
         updatedAt: Date;
     }>;
     updateBank(req: any, updateBankDto: {
-        currentBank?: number;
+        initialBank?: number;
         unitValue?: number;
     }): Promise<{
         id: string;
@@ -79,7 +79,6 @@ export declare class TipstersController {
     }>;
     update(req: any, id: string, updateData: any): Promise<{
         id: string;
-        userId: string;
         date: Date;
         tipster: string;
         event: string;
@@ -90,10 +89,10 @@ export declare class TipstersController {
         amountWagered: import("@prisma/client/runtime/library").Decimal;
         realProfit: import("@prisma/client/runtime/library").Decimal | null;
         cumulativeBalance: import("@prisma/client/runtime/library").Decimal | null;
+        userId: string;
     }>;
     updateStatus(req: any, id: string, status: BetStatus): Promise<{
         id: string;
-        userId: string;
         date: Date;
         tipster: string;
         event: string;
@@ -104,6 +103,7 @@ export declare class TipstersController {
         amountWagered: import("@prisma/client/runtime/library").Decimal;
         realProfit: import("@prisma/client/runtime/library").Decimal | null;
         cumulativeBalance: import("@prisma/client/runtime/library").Decimal | null;
+        userId: string;
     }>;
     delete(req: any, id: string): Promise<{
         success: boolean;

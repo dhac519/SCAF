@@ -24,12 +24,20 @@ export class TipstersService {
   }
 
   // Permite actualizar configuración del banco
-  async updateBank(userId: string, data: { currentBank?: number, unitValue?: number }) {
+  async updateBank(userId: string, data: { initialBank?: number, unitValue?: number }) {
     const bank = await this.getOrCreateBank(userId);
-    return this.prisma.tipsterBank.update({
+    
+    const updated = await this.prisma.tipsterBank.update({
       where: { id: bank.id },
       data,
     });
+
+    // Siempre recalculamos si cambia el bank inicial o el valor por unidad
+    // (Ya que el valor por unidad afecta al dinero real apostado en cada bet si se recalculase, 
+    // pero por ahora solo el bank inicial es crítico para la secuencia acumulada)
+    await this.recalculateBalances(userId, this.prisma);
+
+    return updated;
   }
 
   async createBet(userId: string, createTipsterBetDto: CreateTipsterBetDto) {

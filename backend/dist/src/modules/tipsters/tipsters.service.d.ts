@@ -13,7 +13,7 @@ export declare class TipstersService {
         updatedAt: Date;
     }>;
     updateBank(userId: string, data: {
-        currentBank?: number;
+        initialBank?: number;
         unitValue?: number;
     }): Promise<{
         id: string;
