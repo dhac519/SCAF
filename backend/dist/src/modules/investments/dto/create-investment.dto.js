@@ -11,36 +11,47 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateInvestmentDto = void 0;
 const class_validator_1 = require("class-validator");
-const swagger_1 = require("@nestjs/swagger");
 class CreateInvestmentDto {
     assetName;
+    symbol;
+    coingeckoId;
     type;
     initialAmount;
     currentValue;
+    platformId;
 }
 exports.CreateInvestmentDto = CreateInvestmentDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'Bitcoin', description: 'Nombre del activo' }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateInvestmentDto.prototype, "assetName", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'CRIPTO', description: 'Tipo de inversión' }),
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateInvestmentDto.prototype, "symbol", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateInvestmentDto.prototype, "coingeckoId", void 0);
+__decorate([
+    (0, class_validator_1.IsEnum)(['CRIPTO', 'NEGOCIO', 'ACCION', 'FOREX']),
     __metadata("design:type", String)
 ], CreateInvestmentDto.prototype, "type", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 1000.0, description: 'Monto inicial invertido' }),
     (0, class_validator_1.IsNumber)(),
-    (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", Number)
 ], CreateInvestmentDto.prototype, "initialAmount", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ example: 1200.0, description: 'Valor actual de la inversión (opcional, copia initialAmount al inicio)' }),
     (0, class_validator_1.IsNumber)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Number)
 ], CreateInvestmentDto.prototype, "currentValue", void 0);
+__decorate([
+    (0, class_validator_1.IsUUID)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateInvestmentDto.prototype, "platformId", void 0);
 //# sourceMappingURL=create-investment.dto.js.map

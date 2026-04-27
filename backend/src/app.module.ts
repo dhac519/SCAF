@@ -14,9 +14,10 @@ import { CollectionsModule } from './modules/collections/collections.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { SummaryModule } from './modules/summary/summary.module';
 import { TipstersModule } from './modules/tipsters/tipsters.module';
+import { WikiModule } from './modules/wiki/wiki.module';
 
 @Module({
-  imports: [AuthModule, UsersModule, PrismaModule, WalletsModule, CategoriesModule, TransactionsModule, InvestmentsModule, BetsModule, CollectionsModule, AdminModule, SummaryModule, TipstersModule],
+  imports: [AuthModule, UsersModule, PrismaModule, WalletsModule, CategoriesModule, TransactionsModule, InvestmentsModule, BetsModule, CollectionsModule, AdminModule, SummaryModule, TipstersModule, WikiModule],
   controllers: [AppController],
   providers: [AppService],
 })

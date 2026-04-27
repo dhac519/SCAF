@@ -5,7 +5,8 @@ export function ActionModals({
   handleCreateBet, handleUpdateBank, 
   newBet, setNewBet, bankConfig, setBankConfig, dashboardData,
   isEditing, setEditingId,
-  deleteConfirmId, setDeleteConfirmId, handleDeleteBet
+  deleteConfirmId, setDeleteConfirmId, handleDeleteBet,
+  uniqueTipsters = []
 }: any) {
   return (
     <>
@@ -18,7 +19,12 @@ export function ActionModals({
             <form onSubmit={handleCreateBet} className="space-y-4">
                <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Tipster</label>
-                  <input required value={newBet.tipster} onChange={e => setNewBet({...newBet, tipster: e.target.value})} className="w-full bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-4 py-3 rounded-xl border-none focus:ring-2 focus:ring-blue-500" placeholder="Ej. Personalizado, Sergi" />
+                  <input required value={newBet.tipster} onChange={e => setNewBet({...newBet, tipster: e.target.value})} list="tipsters-list" className="w-full bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-4 py-3 rounded-xl border-none focus:ring-2 focus:ring-blue-500" placeholder="Ej. Personalizado, Sergi" />
+                  <datalist id="tipsters-list">
+                    {uniqueTipsters.map((t: string) => (
+                      <option key={t} value={t} />
+                    ))}
+                  </datalist>
                </div>
                <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Evento / Pronóstico</label>

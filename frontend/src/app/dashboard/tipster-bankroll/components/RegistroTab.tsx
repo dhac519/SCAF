@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { Plus, FileSpreadsheet, Edit2, Trash2, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
 
 export function RegistroTab({ 
-  bets, handleExportCSV, setShowModal, handleUpdateStatus, handleEditClick, handleDeleteClick 
+  bets, initialBank, handleExportCSV, setShowModal, handleUpdateStatus, handleEditClick, handleDeleteClick 
 }: any) {
   const [currentPage, setCurrentPage] = useState(1);
   const [filterResult, setFilterResult] = useState('ALL');
@@ -20,8 +20,25 @@ export function RegistroTab({
     return Array.from(list).sort().reverse();
   }, [bets]);
 
+  const enrichedBets = useMemo(() => {
+    // 1. Sort all bets by date ascending to calculate sequence
+    const sorted = [...bets].sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    
+    // 2. Calculate running balance
+    let runningBalance = Number(initialBank || 0);
+    const withBalance = sorted.map((bet: any) => {
+      if (bet.status !== 'PENDING') {
+        runningBalance += Number(bet.realProfit || 0);
+      }
+      return { ...bet, calculatedBalance: runningBalance };
+    });
+
+    // 3. Re-sort for display (descending)
+    return withBalance.reverse();
+  }, [bets, initialBank]);
+
   const filteredBets = useMemo(() => {
-    return bets.filter((b: any) => {
+    return enrichedBets.filter((b: any) => {
       let isMatch = true;
       if (filterResult !== 'ALL' && b.status !== filterResult) isMatch = false;
       if (filterMonth !== 'ALL') {
@@ -31,7 +48,7 @@ export function RegistroTab({
       }
       return isMatch;
     });
-  }, [bets, filterResult, filterMonth]);
+  }, [enrichedBets, filterResult, filterMonth]);
 
   const totalPages = Math.ceil(filteredBets.length / itemsPerPage) || 1;
 
@@ -128,9 +145,9 @@ export function RegistroTab({
                        <td className={`px-4 py-3 text-right font-bold ${b.realProfit !== null ? (b.realProfit > 0 ? 'text-green-500' : b.realProfit < 0 ? 'text-red-500' : 'text-slate-400') : 'text-slate-400'}`}>
                          {b.realProfit !== null ? `S/ ${Number(b.realProfit).toLocaleString()}` : '-'}
                        </td>
-                       <td className="px-4 py-3 text-right font-bold text-slate-900 dark:text-white">
-                         {b.cumulativeBalance !== null ? `S/ ${Number(b.cumulativeBalance).toLocaleString()}` : '-'}
-                       </td>
+                        <td className="px-4 py-3 text-right font-bold text-slate-900 dark:text-white">
+                          S/ {Number(b.calculatedBalance).toLocaleString()}
+                        </td>
                        <td className="px-4 py-3 text-center">
                          <div className="flex justify-center gap-2">
                            <button onClick={() => handleEditClick(b)} className="p-1.5 text-blue-500 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/40 rounded-lg transition-colors border border-blue-100 dark:border-blue-800" title="Modificar">

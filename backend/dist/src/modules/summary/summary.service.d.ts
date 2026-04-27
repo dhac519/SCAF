@@ -24,22 +24,22 @@ export declare class SummaryService {
         };
         latestTransactions: ({
             wallet: {
-                id: string;
                 name: string;
+                id: string;
+                type: import(".prisma/client").$Enums.WalletType;
                 balance: import("@prisma/client/runtime/library").Decimal;
                 currency: string;
-                type: import(".prisma/client").$Enums.WalletType;
                 userId: string;
             };
         } & {
             id: string;
-            type: import(".prisma/client").$Enums.TransactionType;
-            walletId: string;
-            categoryId: string | null;
-            amount: import("@prisma/client/runtime/library").Decimal;
             description: string;
-            date: Date;
+            type: import(".prisma/client").$Enums.TransactionType;
+            amount: import("@prisma/client/runtime/library").Decimal;
+            walletId: string;
             targetWalletId: string | null;
+            categoryId: string | null;
+            date: Date;
         })[];
     }>;
 }

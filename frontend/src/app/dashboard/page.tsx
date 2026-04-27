@@ -13,7 +13,8 @@ import {
   Zap,
   Lock,
   Sparkles,
-  Rocket
+  Rocket,
+  BookOpen
 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -31,7 +32,7 @@ export default function DashboardLobby() {
 
   const activeModules = user?.modules || [];
 
-  const ALL_MODULES = ['FINANCE', 'INVESTMENTS', 'BETS', 'COLLECTIONS', 'TIPSTER_BANKROLL'];
+  const ALL_MODULES = ['FINANCE', 'INVESTMENTS', 'BETS', 'COLLECTIONS', 'TIPSTER_BANKROLL', 'WIKI'];
 
   const getModuleConfig = (moduleId: string) => {
     switch(moduleId) {
@@ -40,6 +41,7 @@ export default function DashboardLobby() {
       case 'BETS': return { title: 'Apuestas', icon: Target, color: 'bg-purple-500', href: '/dashboard/bets', desc: 'Registra tus tickets y mide tu yield real.' };
       case 'COLLECTIONS': return { title: 'Colecciones', icon: Coins, color: 'bg-amber-500', href: '/dashboard/collections', desc: 'Administra el valor de tus preciadas piezas.' };
       case 'TIPSTER_BANKROLL': return { title: 'Tipsters', icon: Activity, color: 'bg-indigo-500', href: '/dashboard/tipster-bankroll', desc: 'Lleva tu récord público como pronosticador.' };
+      case 'WIKI': return { title: 'Wiki Hub', icon: BookOpen, color: 'bg-rose-600', href: '/dashboard/wiki', desc: 'Tu base de conocimientos personal y notas técnicas.' };
       default: return null;
     }
   };

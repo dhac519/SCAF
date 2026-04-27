@@ -42,16 +42,16 @@ export function DashboardTab({ dynamicStats, bank, uniqueTipsters, uniqueMonths,
               </div>
 
               <div className="p-4 text-center border-t-2 border-white/10 mt-2 bg-black/20">
-                 <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Bank Actual</p>
-                 <div className={`font-black text-2xl ${dynamicStats.cumulativeBank >= bank.initial ? 'text-emerald-400' : 'text-red-400'}`}>
-                   S/ {Number(dynamicStats.cumulativeBank).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                 <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Bank Actual (Global)</p>
+                 <div className={`font-black text-2xl ${bank.current >= bank.initial ? 'text-emerald-400' : 'text-red-400'}`}>
+                   S/ {Number(bank.current).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                  </div>
               </div>
               
               <div className="p-4 text-center">
-                 <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Saldo en U</p>
-                 <div className={`font-black text-2xl ${((dynamicStats.cumulativeBank - bank.initial) / bank.unitValue) >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                   {((dynamicStats.cumulativeBank - bank.initial) / bank.unitValue).toFixed(2)} U
+                 <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Saldo Global en U</p>
+                 <div className="font-black text-2xl text-emerald-400">
+                   {(bank.current / bank.unitValue).toFixed(2)} U
                  </div>
               </div>
 

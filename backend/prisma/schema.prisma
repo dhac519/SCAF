@@ -38,6 +38,14 @@ model User {
   // Tipster Module
   tipsterBank             TipsterBank?
   tipsterBets             TipsterBet[]
+
+  // Wiki Module
+  wikiFolders WikiFolder[]
+  wikiTopics  WikiTopic[]
+  wikiNotes   WikiNote[]
+
+  // Investment Platforms
+  investmentPlatforms InvestmentPlatform[]
 }
 
 // --- MÓDULO DE FINANZAS (PLATA) ---
@@ -92,13 +100,80 @@ model Transaction {
 // --- MÓDULO DE INVERSIONES ---
 
 model Investment {
-  id            String  @id @default(uuid())
-  assetName     String // Ej: "Bitcoin", "Tienda de Ropa"
-  type          String // "CRIPTO", "NEGOCIO", "ACCION"
-  initialAmount Decimal @db.Decimal(15, 2)
-  currentValue  Decimal @db.Decimal(15, 2)
+  id            String   @id @default(uuid())
+  assetName     String   // Ej: "Bitcoin", "Tienda de Ropa"
+  symbol        String?  // Ej: "BTC"
+  coingeckoId   String?  // Id para la API de CoinGecko
+  type          String   // "CRIPTO", "NEGOCIO", "ACCION"
+  initialAmount Decimal  @db.Decimal(15, 2)
+  currentValue  Decimal  @db.Decimal(15, 2)
+  
   userId        String
-  user          User    @relation(fields: [userId], references: [id])
+  user          User     @relation(fields: [userId], references: [id])
+
+  platformId    String?
+  platform      InvestmentPlatform? @relation(fields: [platformId], references: [id])
+  
+  transactions  InvestmentTransaction[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model InvestmentPlatform {
+  id          String   @id @default(uuid())
+  name        String   // Ej: "Binance", "MetaMask", "Efectivo"
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  investments Investment[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model InvestmentTransaction {
+  id           String   @id @default(uuid())
+  type         String   // "BUY", "SELL"
+  amount       Decimal  @db.Decimal(20, 8)
+  priceAtDate  Decimal  @db.Decimal(20, 8)
+  date         DateTime @default(now())
+  
+  investmentId String
+  investment   Investment @relation(fields: [investmentId], references: [id])
+}
+
+// --- MÓDULO WIKI (APUNTES) ---
+
+model WikiFolder {
+  id        String      @id @default(uuid())
+  name      String
+  userId    String
+  user      User        @relation(fields: [userId], references: [id])
+  topics    WikiTopic[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model WikiTopic {
+  id        String     @id @default(uuid())
+  name      String
+  folderId  String
+  folder    WikiFolder @relation(fields: [folderId], references: [id])
+  notes     WikiNote[]
+  userId    String
+  user      User       @relation(fields: [userId], references: [id])
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model WikiNote {
+  id        String    @id @default(uuid())
+  title     String
+  content   String    @db.Text
+  topicId   String
+  topic     WikiTopic @relation(fields: [topicId], references: [id])
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 // --- MÓDULO DE APUESTAS ---

@@ -17,6 +17,8 @@ const common_1 = require("@nestjs/common");
 const investments_service_1 = require("./investments.service");
 const create_investment_dto_1 = require("./dto/create-investment.dto");
 const update_investment_dto_1 = require("./dto/update-investment.dto");
+const create_platform_dto_1 = require("./dto/create-platform.dto");
+const create_transaction_dto_1 = require("./dto/create-transaction.dto");
 const jwt_auth_guard_1 = require("../../common/guards/jwt-auth.guard");
 const swagger_1 = require("@nestjs/swagger");
 let InvestmentsController = class InvestmentsController {
@@ -30,6 +32,15 @@ let InvestmentsController = class InvestmentsController {
     findAll(req) {
         return this.investmentsService.findAll(req.user.userId);
     }
+    getMarketTrends() {
+        return this.investmentsService.getMarketTrends();
+    }
+    createPlatform(req, createPlatformDto) {
+        return this.investmentsService.createPlatform(req.user.userId, createPlatformDto);
+    }
+    findAllPlatforms(req) {
+        return this.investmentsService.findAllPlatforms(req.user.userId);
+    }
     findOne(req, id) {
         return this.investmentsService.findOne(req.user.userId, id);
     }
@@ -38,6 +49,9 @@ let InvestmentsController = class InvestmentsController {
     }
     remove(req, id) {
         return this.investmentsService.remove(req.user.userId, id);
+    }
+    addTransaction(req, dto) {
+        return this.investmentsService.addTransaction(req.user.userId, dto);
     }
 };
 exports.InvestmentsController = InvestmentsController;
@@ -58,6 +72,30 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], InvestmentsController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)('market-trends'),
+    (0, swagger_1.ApiOperation)({ summary: 'Obtener tendencias del mercado (Cripto y Divisas)' }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], InvestmentsController.prototype, "getMarketTrends", null);
+__decorate([
+    (0, common_1.Post)('platforms'),
+    (0, swagger_1.ApiOperation)({ summary: 'Crear una plataforma de inversión' }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, create_platform_dto_1.CreatePlatformDto]),
+    __metadata("design:returntype", void 0)
+], InvestmentsController.prototype, "createPlatform", null);
+__decorate([
+    (0, common_1.Get)('platforms'),
+    (0, swagger_1.ApiOperation)({ summary: 'Obtener todas las plataformas' }),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], InvestmentsController.prototype, "findAllPlatforms", null);
 __decorate([
     (0, common_1.Get)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Obtener una inversión por ID' }),
@@ -86,6 +124,15 @@ __decorate([
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", void 0)
 ], InvestmentsController.prototype, "remove", null);
+__decorate([
+    (0, common_1.Post)('transactions'),
+    (0, swagger_1.ApiOperation)({ summary: 'Registrar una transacción de compra/venta' }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, create_transaction_dto_1.CreateInvestmentTransactionDto]),
+    __metadata("design:returntype", void 0)
+], InvestmentsController.prototype, "addTransaction", null);
 exports.InvestmentsController = InvestmentsController = __decorate([
     (0, swagger_1.ApiTags)('Investments'),
     (0, swagger_1.ApiBearerAuth)(),

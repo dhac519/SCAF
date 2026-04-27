@@ -46,7 +46,6 @@ let TipstersService = class TipstersService {
             const amountWagered = stake * Number(bank.unitValue);
             let unitsProfit = null;
             let realProfit = null;
-            let cumulativeBalance = Number(bank.currentBank);
             if (status === client_1.BetStatus.WON) {
                 unitsProfit = stake * (odds - 1);
                 realProfit = amountWagered * (odds - 1);
@@ -59,9 +58,6 @@ let TipstersService = class TipstersService {
                 unitsProfit = 0;
                 realProfit = 0;
             }
-            if (realProfit !== null) {
-                cumulativeBalance += realProfit;
-            }
             const newBet = await prisma.tipsterBet.create({
                 data: {
                     userId,
@@ -73,16 +69,11 @@ let TipstersService = class TipstersService {
                     amountWagered,
                     unitsProfit,
                     realProfit,
-                    cumulativeBalance,
+                    cumulativeBalance: 0,
                     date: date ? new Date(date) : new Date(),
                 }
             });
-            if (status !== client_1.BetStatus.PENDING) {
-                await prisma.tipsterBank.update({
-                    where: { id: bank.id },
-                    data: { currentBank: cumulativeBalance }
-                });
-            }
+            await this.recalculateBalances(userId, prisma);
             return newBet;
         });
     }
@@ -91,13 +82,6 @@ let TipstersService = class TipstersService {
             const bet = await prisma.tipsterBet.findFirst({ where: { id, userId } });
             if (!bet)
                 throw new common_1.NotFoundException('Pronóstico no encontrado');
-            if (bet.status === status)
-                return bet;
-            const bank = await this.getOrCreateBank(userId);
-            let newCurrentBank = Number(bank.currentBank);
-            if (bet.status !== client_1.BetStatus.PENDING && bet.realProfit !== null) {
-                newCurrentBank -= Number(bet.realProfit);
-            }
             const stake = Number(bet.stake);
             const odds = Number(bet.odds);
             const amountWagered = Number(bet.amountWagered);
@@ -115,22 +99,15 @@ let TipstersService = class TipstersService {
                 unitsProfit = 0;
                 realProfit = 0;
             }
-            if (realProfit !== null) {
-                newCurrentBank += realProfit;
-            }
             const updatedBet = await prisma.tipsterBet.update({
                 where: { id },
                 data: {
                     status,
                     unitsProfit,
                     realProfit,
-                    cumulativeBalance: newCurrentBank
                 }
             });
-            await prisma.tipsterBank.update({
-                where: { id: bank.id },
-                data: { currentBank: newCurrentBank }
-            });
+            await this.recalculateBalances(userId, prisma);
             return updatedBet;
         });
     }
@@ -140,10 +117,6 @@ let TipstersService = class TipstersService {
             if (!bet)
                 throw new common_1.NotFoundException('Pronóstico no encontrado');
             const bank = await this.getOrCreateBank(userId);
-            let newCurrentBank = Number(bank.currentBank);
-            if (bet.status !== client_1.BetStatus.PENDING && bet.realProfit !== null) {
-                newCurrentBank -= Number(bet.realProfit);
-            }
             const status = updateData.status !== undefined ? updateData.status : bet.status;
             const stake = updateData.stake !== undefined ? Number(updateData.stake) : Number(bet.stake);
             const odds = updateData.odds !== undefined ? Number(updateData.odds) : Number(bet.odds);
@@ -164,9 +137,6 @@ let TipstersService = class TipstersService {
                 unitsProfit = 0;
                 realProfit = 0;
             }
-            if (realProfit !== null) {
-                newCurrentBank += realProfit;
-            }
             const updatedBet = await prisma.tipsterBet.update({
                 where: { id },
                 data: {
@@ -178,13 +148,9 @@ let TipstersService = class TipstersService {
                     amountWagered,
                     unitsProfit,
                     realProfit,
-                    cumulativeBalance: newCurrentBank
                 }
             });
-            await prisma.tipsterBank.update({
-                where: { id: bank.id },
-                data: { currentBank: newCurrentBank }
-            });
+            await this.recalculateBalances(userId, prisma);
             return updatedBet;
         });
     }
@@ -199,14 +165,9 @@ let TipstersService = class TipstersService {
             const bet = await prisma.tipsterBet.findFirst({ where: { id, userId } });
             if (!bet)
                 throw new common_1.NotFoundException('Pronóstico no encontrado');
-            if (bet.status !== client_1.BetStatus.PENDING && bet.realProfit !== null) {
-                const bank = await this.getOrCreateBank(userId);
-                await prisma.tipsterBank.update({
-                    where: { id: bank.id },
-                    data: { currentBank: Number(bank.currentBank) - Number(bet.realProfit) }
-                });
-            }
-            return prisma.tipsterBet.delete({ where: { id } });
+            await prisma.tipsterBet.delete({ where: { id } });
+            await this.recalculateBalances(userId, prisma);
+            return { success: true };
         });
     }
     async getDashboard(userId) {
@@ -279,11 +240,11 @@ let TipstersService = class TipstersService {
                 data.wagered += Number(b.amountWagered);
                 data.units += Number(b.unitsProfit || 0);
                 data.profit += Number(b.realProfit || 0);
-                if (b.status === client_1.BetStatus.WON)
+                if (b.status === 'WON')
                     data.won++;
-                else if (b.status === client_1.BetStatus.LOST)
+                else if (b.status === 'LOST')
                     data.lost++;
-                else if (b.status === client_1.BetStatus.VOID)
+                else if (b.status === 'VOID')
                     data.voided++;
             }
         });
@@ -297,6 +258,29 @@ let TipstersService = class TipstersService {
         });
         ranking.sort((a, b) => b.units - a.units);
         return ranking;
+    }
+    async recalculateBalances(userId, prisma) {
+        const bank = await prisma.tipsterBank.findUnique({ where: { userId } });
+        if (!bank)
+            return;
+        const allBets = await prisma.tipsterBet.findMany({
+            where: { userId },
+            orderBy: { date: 'asc' }
+        });
+        let runningBalance = Number(bank.initialBank);
+        for (const bet of allBets) {
+            if (bet.status !== client_1.BetStatus.PENDING) {
+                runningBalance += Number(bet.realProfit || 0);
+            }
+            await prisma.tipsterBet.update({
+                where: { id: bet.id },
+                data: { cumulativeBalance: runningBalance }
+            });
+        }
+        await prisma.tipsterBank.update({
+            where: { userId },
+            data: { currentBank: runningBalance }
+        });
     }
 };
 exports.TipstersService = TipstersService;

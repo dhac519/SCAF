@@ -1,87 +1,142 @@
-import { TrendingUp, TrendingDown, DollarSign, Activity } from 'lucide-react';
+'use client';
+
+import { ExternalLink, TrendingUp, TrendingDown, Building2, Wallet } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+interface Asset {
+  id: string;
+  assetName: string;
+  symbol?: string;
+  type: string;
+  initialAmount: string | number;
+  currentValue: string | number;
+  realTimePrice?: number;
+  platform?: { name: string };
+}
+
+interface InvestmentListProps {
+  loading: boolean;
+  investments: Asset[];
+  updatingId: string | null;
+  setUpdatingId: (id: string | null) => void;
+  updateValue: string;
+  setUpdateValue: (v: string) => void;
+  handleUpdateValue: (id: string) => void;
+  usdToPen: number;
+}
 
 export function InvestmentList({
-  loading, investments, updatingId, setUpdatingId,
-  updateValue, setUpdateValue, handleUpdateValue
-}: any) {
+  loading,
+  investments,
+  updatingId,
+  setUpdatingId,
+  updateValue,
+  setUpdateValue,
+  handleUpdateValue,
+  usdToPen
+}: InvestmentListProps) {
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-48 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-3xl" />
+        ))}
+      </div>
+    );
+  }
+
+  if (investments.length === 0) {
+    return (
+      <div className="bg-slate-100 dark:bg-slate-900 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl p-12 text-center">
+        <p className="text-slate-500 dark:text-slate-400">No tienes activos registrados todavía.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {loading ? (
-        Array(3).fill(0).map((_, i) => <div key={i} className="h-56 bg-white dark:bg-slate-900 rounded-3xl animate-pulse shadow-sm border border-slate-100 dark:border-slate-800"></div>)
-      ) : investments.length > 0 ? (
-        investments.map((inv: any) => {
-          const init = Number(inv.initialAmount);
-          const curr = Number(inv.currentValue);
-          const diff = curr - init;
-          const roi = init > 0 ? (diff / init) * 100 : 0;
-          const isUp = roi >= 0;
+      {investments.map((inv) => {
+        const initial = Number(inv.initialAmount);
+        const currentVal = Number(inv.currentValue);
+        const roi = initial > 0 ? ((currentVal - initial) / initial) * 100 : 0;
+        const isPositive = roi >= 0;
 
-          return (
-            <div key={inv.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 p-6 opacity-[0.03] dark:opacity-5 group-hover:scale-125 transition-transform duration-500 pointer-events-none">
-                <Activity className="w-32 h-32" />
-              </div>
-              
-              <div className="flex justify-between items-start mb-6 relative z-10">
+        const valInPen = currentVal * usdToPen;
+
+        return (
+          <div key={inv.id} className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 hover:shadow-2xl hover:shadow-slate-900/5 dark:hover:shadow-white/5 transition-all duration-300">
+            <div className="flex justify-between items-start mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center text-slate-900 dark:text-white group-hover:bg-slate-900 dark:group-hover:bg-white group-hover:text-white dark:group-hover:text-slate-900 transition-colors">
+                  {inv.type === 'CRIPTO' ? <TrendingUp size={20} /> : <Building2 size={20} />}
+                </div>
                 <div>
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">{inv.assetName}</h3>
-                  <span className="text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full mt-2 inline-block uppercase tracking-wider">
-                    {inv.type}
-                  </span>
-                </div>
-                <div className={`flex flex-col items-end`}>
-                  <div className={`flex items-center gap-1 font-bold text-base px-3 py-1 rounded-full ${isUp ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400' : 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-400'}`}>
-                    {isUp ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-                    {isUp ? '+' : ''}{roi.toFixed(1)}%
-                  </div>
+                  <h3 className="font-bold text-slate-900 dark:text-white leading-none">{inv.assetName}</h3>
+                  <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">{inv.type} {inv.symbol && `• ${inv.symbol}`}</span>
                 </div>
               </div>
-
-              <div className="space-y-4 relative z-10">
-                <div className="flex justify-between items-end border-b border-slate-100 dark:border-slate-800/60 pb-4">
-                  <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Inversión Inicial</span>
-                  <span className="font-bold text-slate-700 dark:text-slate-300">S/ {init.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
-                </div>
-                
-                {updatingId === inv.id ? (
-                  <div className="flex items-center gap-2 pt-2 animate-in slide-in-from-bottom-2">
-                    <input
-                      type="number"
-                      step="0.01"
-                      autoFocus
-                      defaultValue={curr}
-                      onChange={(e) => setUpdateValue(e.target.value)}
-                      className="w-full px-3 py-2.5 text-sm border border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-900 dark:focus:ring-white outline-none font-bold"
-                      placeholder="Nuevo Valor"
-                    />
-                    <button onClick={() => handleUpdateValue(inv.id)} className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors">✓</button>
-                    <button onClick={() => setUpdatingId(null)} className="bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors">X</button>
-                  </div>
-                ) : (
-                  <div 
-                    className="flex justify-between items-end pt-2 cursor-pointer group/value select-none" 
-                    onClick={() => { setUpdatingId(inv.id); setUpdateValue(String(curr)); }}
-                  >
-                    <span className="text-sm font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1.5"><DollarSign className="w-4 h-4"/> Valorización</span>
-                    <div className="flex flex-col items-end">
-                      <span className="text-xs text-blue-600 dark:text-blue-400 font-bold opacity-0 group-hover/value:opacity-100 transition-opacity mb-1 -translate-y-2 group-hover/value:translate-y-0 duration-300">✎ Actualizar</span>
-                      <span className="font-extrabold text-2xl text-slate-900 dark:text-white tabular-nums tracking-tight">S/ {curr.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
-                    </div>
-                  </div>
-                )}
+              <div className={cn(
+                "flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold",
+                isPositive ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400" : "bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400"
+              )}>
+                {isPositive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                {roi.toFixed(2)}%
               </div>
             </div>
-          );
-        })
-      ) : (
-        <div className="col-span-full py-16 text-center border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 rounded-3xl">
-          <div className="w-20 h-20 bg-white dark:bg-slate-800 rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-6">
-            <TrendingUp className="h-10 w-10 text-slate-400" />
+
+            <div className="space-y-4">
+              <div className="flex justify-between items-end">
+                <div>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-tight">Valor Actual</p>
+                  <p className="text-2xl font-black text-slate-900 dark:text-white leading-none">
+                    ${currentVal.toLocaleString()}
+                  </p>
+                  <p className="text-xs font-bold text-slate-400 mt-1">S/ {valInPen.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-tight">Invertido</p>
+                  <p className="text-sm font-bold text-slate-700 dark:text-slate-300">${initial.toLocaleString()}</p>
+                </div>
+              </div>
+
+              {inv.platform && (
+                <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 dark:bg-slate-800/50 rounded-xl text-xs text-slate-600 dark:text-slate-400">
+                  <Wallet size={14} />
+                  <span>En <span className="font-bold text-slate-900 dark:text-white">{inv.platform.name}</span></span>
+                </div>
+              )}
+
+              {inv.realTimePrice && (
+                <div className="flex items-center justify-between text-[10px] text-sky-500 dark:text-sky-400 font-bold uppercase tracking-widest pt-2 border-t border-slate-100 dark:border-slate-800">
+                  <span>Precio en Vivo</span>
+                  <span>${inv.realTimePrice.toLocaleString()} / S/ {(inv.realTimePrice * usdToPen).toLocaleString()}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-6 flex gap-2">
+              {updatingId === inv.id ? (
+                <div className="flex-1 flex gap-2 animate-in slide-in-from-bottom-2">
+                  <input
+                    type="number" value={updateValue} onChange={(e) => setUpdateValue(e.target.value)}
+                    className="flex-1 bg-slate-50 dark:bg-slate-800 border-none rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-slate-900"
+                    placeholder="Nuevo valor USD..." autoFocus
+                  />
+                  <button onClick={() => handleUpdateValue(inv.id)} className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-2 rounded-xl text-xs font-bold">OK</button>
+                  <button onClick={() => setUpdatingId(null)} className="text-slate-400 px-2">X</button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setUpdatingId(inv.id)}
+                  className="flex-1 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
+                >
+                  Actualizar Valor
+                </button>
+              )}
+            </div>
           </div>
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Sin Inversiones Activas</h3>
-          <p className="text-slate-500 max-w-sm mx-auto">Comienza a registrar tus criptomonedas, acciones u otros activos para monitorear tu patrimonio a futuro.</p>
-        </div>
-      )}
+        );
+      })}
     </div>
   );
 }

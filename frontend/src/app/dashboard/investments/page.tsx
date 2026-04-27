@@ -2,18 +2,24 @@
 
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
-import { Plus } from 'lucide-react';
+import { Plus, LayoutGrid, RefreshCw } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { InvestmentMetrics } from './components/InvestmentMetrics';
 import { InvestmentForm } from './components/InvestmentForm';
 import { InvestmentList } from './components/InvestmentList';
+import { MarketOverview } from './components/MarketOverview';
 
 interface Investment {
   id: string;
   assetName: string;
+  symbol?: string;
+  coingeckoId?: string;
   type: string;
-  initialAmount: string;
-  currentValue: string;
+  initialAmount: number;
+  currentValue: number;
+  realTimePrice?: number;
+  platform?: { name: string };
 }
 
 export default function InvestmentsPage() {
@@ -28,13 +34,26 @@ export default function InvestmentsPage() {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [updateValue, setUpdateValue] = useState('');
 
+  // Form State for Quick Add
+  const [autoSymbol, setAutoSymbol] = useState('');
+  const [autoCoingeckoId, setAutoCoingeckoId] = useState('');
+  
+  // Currency State
+  const [usdToPen, setUsdToPen] = useState(3.75); // Fallback to a common value
+
   const fetchInvestments = async () => {
     setLoading(true);
     try {
-      const { data } = await api.get('/investments');
+      const [{ data }, { data: trends }] = await Promise.all([
+        api.get('/investments'),
+        api.get('/investments/market-trends')
+      ]);
       setInvestments(data);
+      if (trends.forex?.rates?.PEN) {
+        setUsdToPen(trends.forex.rates.PEN);
+      }
     } catch (err) {
-      console.error(err);
+      toast.error('Error al cargar activos');
     } finally {
       setLoading(false);
     }
@@ -44,21 +63,26 @@ export default function InvestmentsPage() {
     fetchInvestments();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (data: any) => {
     try {
-      await api.post('/investments', {
-        assetName,
-        type,
-        initialAmount: Number(initialAmount),
-      });
+      await api.post('/investments', data);
       setShowAddForm(false);
       setAssetName('');
       setInitialAmount('');
       fetchInvestments();
+      toast.success('Inversión registrada correctamente');
     } catch (err: any) {
-      alert('Error: ' + (err.response?.data?.message || err.message));
+      toast.error('Error: ' + (err.response?.data?.message || err.message));
     }
+  };
+
+  const handleSelectMarketAsset = (asset: any) => {
+    setAssetName(asset.name);
+    setType(asset.type);
+    setShowAddForm(true);
+    // These will be passed to the form to pre-fill it via Event
+    window.dispatchEvent(new CustomEvent('quick-add-asset', { detail: asset }));
+    toast.info(`Configurando para añadir ${asset.name}`);
   };
 
   const handleUpdateValue = async (id: string) => {
@@ -68,8 +92,20 @@ export default function InvestmentsPage() {
       setUpdatingId(null);
       setUpdateValue('');
       fetchInvestments();
+      toast.success('Valor actualizado');
     } catch (err) {
-      alert('Error actualizando el valor');
+      toast.error('Error actualizando el valor');
+    }
+  };
+
+  const handleAddPlatform = async () => {
+    const name = prompt('Nombre de la plataforma (Binance, MetaMask, etc):');
+    if (!name) return;
+    try {
+      await api.post('/investments/platforms', { name });
+      toast.success('Plataforma añadida');
+    } catch (err) {
+      toast.error('Error al añadir plataforma');
     }
   };
 
@@ -78,22 +114,40 @@ export default function InvestmentsPage() {
   const globalROI = totalInitial > 0 ? ((totalCurrent - totalInitial) / totalInitial) * 100 : 0;
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-8 animate-in fade-in duration-500 pb-20">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">Portafolio</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">Sigue el rendimiento y ROI de tus activos de largo plazo.</p>
+          <h1 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
+            <LayoutGrid className="text-sky-500" />
+            Inversiones 2.0
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Gestión centralizada de activos con datos en tiempo real.</p>
         </div>
-        <button
-          onClick={() => setShowAddForm(!showAddForm)}
-          className="flex items-center justify-center gap-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-5 py-3 rounded-2xl font-bold hover:bg-slate-800 dark:hover:bg-slate-100 transition-all hover:scale-[1.02] shadow-xl shadow-slate-900/10 dark:shadow-white/10"
-        >
-          <Plus className="h-5 w-5" />
-          Nuevo Activo
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={fetchInvestments}
+            className="p-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-2xl hover:bg-slate-200 transition-all"
+            title="Refrescar precios"
+          >
+            <RefreshCw className={loading ? 'animate-spin' : ''} size={20} />
+          </button>
+          <button
+            onClick={handleAddPlatform}
+            className="flex items-center justify-center gap-2 border-2 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white px-5 py-3 rounded-2xl font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm"
+          >
+            Gestionar Plataformas
+          </button>
+          <button
+            onClick={() => setShowAddForm(!showAddForm)}
+            className="flex items-center justify-center gap-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-5 py-3 rounded-2xl font-bold hover:bg-slate-800 dark:hover:bg-slate-100 transition-all hover:scale-[1.02] shadow-xl"
+          >
+            <Plus className="h-5 w-5" />
+            Nuevo Activo
+          </button>
+        </div>
       </div>
 
-      <InvestmentMetrics totalInitial={totalInitial} totalCurrent={totalCurrent} globalROI={globalROI} />
+      <InvestmentMetrics totalInitial={totalInitial} totalCurrent={totalCurrent} globalROI={globalROI} usdToPen={usdToPen} />
 
       <InvestmentForm 
         showAddForm={showAddForm} setShowAddForm={setShowAddForm}
@@ -106,7 +160,10 @@ export default function InvestmentsPage() {
         updatingId={updatingId} setUpdatingId={setUpdatingId}
         updateValue={updateValue} setUpdateValue={setUpdateValue}
         handleUpdateValue={handleUpdateValue}
+        usdToPen={usdToPen}
       />
+
+      <MarketOverview onSelectAsset={handleSelectMarketAsset} usdToPen={usdToPen} />
     </div>
   );
 }

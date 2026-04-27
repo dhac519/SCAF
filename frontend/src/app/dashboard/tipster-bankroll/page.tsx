@@ -125,7 +125,7 @@ export default function TipsterBankrollPage() {
     try {
       if (editingId) {
         await api.patch(`/tipsters/${editingId}`, {
-          tipster: newBet.tipster,
+          tipster: newBet.tipster.trim().toUpperCase(),
           event: newBet.event,
           stake: Number(newBet.stake),
           odds: Number(newBet.odds)
@@ -134,7 +134,7 @@ export default function TipsterBankrollPage() {
         setEditingId(null);
       } else {
         await api.post('/tipsters', {
-          tipster: newBet.tipster,
+          tipster: newBet.tipster.trim().toUpperCase(),
           event: newBet.event,
           stake: Number(newBet.stake),
           odds: Number(newBet.odds)
@@ -216,8 +216,10 @@ export default function TipsterBankrollPage() {
 
   const uniqueTipsters = useMemo(() => {
     const list = new Set<string>();
-    bets.forEach(b => list.add(b.tipster));
-    return Array.from(list);
+    bets.forEach(b => {
+      list.add(b.tipster.trim().toUpperCase());
+    });
+    return Array.from(list).sort();
   }, [bets]);
 
   const uniqueMonths = useMemo(() => {
@@ -331,7 +333,7 @@ export default function TipsterBankrollPage() {
       ) : (
         <>
           {activeTab === 'dashboard' && <DashboardTab dynamicStats={dynamicStats} bank={bank} uniqueTipsters={uniqueTipsters} uniqueMonths={uniqueMonths} filterTipster={filterTipster} setFilterTipster={setFilterTipster} filterMonth={filterMonth} setFilterMonth={setFilterMonth} filteredBets={filteredBets} />}
-          {activeTab === 'registro' && <RegistroTab bets={bets} handleExportCSV={handleExportCSV} setShowModal={setShowModal} handleUpdateStatus={handleUpdateStatus} handleEditClick={handleEditClick} handleDeleteClick={handleDeleteClick} />}
+          {activeTab === 'registro' && <RegistroTab bets={bets} initialBank={bank.initial} handleExportCSV={handleExportCSV} setShowModal={setShowModal} handleUpdateStatus={handleUpdateStatus} handleEditClick={handleEditClick} handleDeleteClick={handleDeleteClick} />}
           {activeTab === 'ranking' && <RankingTab ranking={ranking} />}
         </>
       )}
@@ -346,6 +348,7 @@ export default function TipsterBankrollPage() {
         isEditing={!!editingId} setEditingId={setEditingId} 
         deleteConfirmId={deleteConfirmId} setDeleteConfirmId={setDeleteConfirmId} 
         handleDeleteBet={handleDeleteBet} 
+        uniqueTipsters={uniqueTipsters}
       />
     </div>
   );

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/authStore';
-import { LayoutDashboard, Wallet, TrendingUp, Target, LogOut, Menu, X, Loader2, Coins, ShieldAlert, Lock, Activity } from 'lucide-react';
+import { LayoutDashboard, Wallet, TrendingUp, Target, LogOut, Menu, X, Loader2, Coins, ShieldAlert, Lock, Activity, BookOpen } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -34,6 +34,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     '/dashboard/bets': 'BETS',
     '/dashboard/collections': 'COLLECTIONS',
     '/dashboard/tipster-bankroll': 'TIPSTER_BANKROLL',
+    '/dashboard/wiki': 'WIKI',
   };
 
   useEffect(() => {
@@ -57,6 +58,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const baseNavItems = [
     { name: 'General', href: '/dashboard', icon: LayoutDashboard },
+    { name: 'Wiki Hub', href: '/dashboard/wiki', icon: BookOpen },
     { name: 'Finanzas', href: '/dashboard/finances', icon: Wallet, module: 'FINANCE' },
     { name: 'Inversiones', href: '/dashboard/investments', icon: TrendingUp, module: 'INVESTMENTS' },
     { name: 'Apuestas', href: '/dashboard/bets', icon: Target, module: 'BETS' },

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import { useRouter } from 'next/navigation';
-import { ShieldAlert, Target, Wallet, Coins, TrendingUp, Activity } from 'lucide-react';
+import { ShieldAlert, Target, Wallet, Coins, TrendingUp, Activity, BookOpen } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { AdminMetrics } from './components/AdminMetrics';
@@ -122,6 +122,7 @@ export default function AdminPage() {
     { key: 'BETS', label: 'Apuestas', icon: Target, color: 'purple' },
     { key: 'TIPSTER_BANKROLL', label: 'Tipsters Bankroll', icon: Activity, color: 'rose' },
     { key: 'COLLECTIONS', label: 'Colecciones', icon: Coins, color: 'amber' },
+    { key: 'WIKI', label: 'Wiki Hub', icon: BookOpen, color: 'rose' },
   ];
 
   if (!user || user.role !== 'ADMIN') return null;

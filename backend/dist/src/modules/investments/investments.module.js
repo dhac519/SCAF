@@ -11,13 +11,14 @@ const common_1 = require("@nestjs/common");
 const investments_service_1 = require("./investments.service");
 const investments_controller_1 = require("./investments.controller");
 const prisma_module_1 = require("../../prisma/prisma.module");
+const price_service_1 = require("./services/price.service");
 let InvestmentsModule = class InvestmentsModule {
 };
 exports.InvestmentsModule = InvestmentsModule;
 exports.InvestmentsModule = InvestmentsModule = __decorate([
     (0, common_1.Module)({
         imports: [prisma_module_1.PrismaModule],
-        providers: [investments_service_1.InvestmentsService],
+        providers: [investments_service_1.InvestmentsService, price_service_1.PriceService],
         controllers: [investments_controller_1.InvestmentsController]
     })
 ], InvestmentsModule);

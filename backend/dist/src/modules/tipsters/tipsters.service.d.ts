@@ -80,18 +80,7 @@ export declare class TipstersService {
         cumulativeBalance: import("@prisma/client/runtime/library").Decimal | null;
     }[]>;
     deleteBet(userId: string, id: string): Promise<{
-        id: string;
-        userId: string;
-        date: Date;
-        tipster: string;
-        event: string;
-        status: import(".prisma/client").$Enums.BetStatus;
-        stake: import("@prisma/client/runtime/library").Decimal;
-        odds: import("@prisma/client/runtime/library").Decimal;
-        unitsProfit: import("@prisma/client/runtime/library").Decimal | null;
-        amountWagered: import("@prisma/client/runtime/library").Decimal;
-        realProfit: import("@prisma/client/runtime/library").Decimal | null;
-        cumulativeBalance: import("@prisma/client/runtime/library").Decimal | null;
+        success: boolean;
     }>;
     getDashboard(userId: string): Promise<{
         bank: {
@@ -116,4 +105,5 @@ export declare class TipstersService {
         evolution: any[];
     }>;
     getRanking(userId: string): Promise<any[]>;
+    private recalculateBalances;
 }
