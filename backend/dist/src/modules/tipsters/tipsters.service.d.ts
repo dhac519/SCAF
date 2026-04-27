@@ -6,32 +6,32 @@ export declare class TipstersService {
     constructor(prisma: PrismaService);
     getOrCreateBank(userId: string): Promise<{
         id: string;
+        updatedAt: Date;
         userId: string;
         initialBank: import("@prisma/client/runtime/library").Decimal;
         currentBank: import("@prisma/client/runtime/library").Decimal;
         unitValue: import("@prisma/client/runtime/library").Decimal;
-        updatedAt: Date;
     }>;
     updateBank(userId: string, data: {
         initialBank?: number;
         unitValue?: number;
     }): Promise<{
         id: string;
+        updatedAt: Date;
         userId: string;
         initialBank: import("@prisma/client/runtime/library").Decimal;
         currentBank: import("@prisma/client/runtime/library").Decimal;
         unitValue: import("@prisma/client/runtime/library").Decimal;
-        updatedAt: Date;
     }>;
     createBet(userId: string, createTipsterBetDto: CreateTipsterBetDto): Promise<{
         id: string;
         userId: string;
         date: Date;
-        tipster: string;
         event: string;
-        status: import(".prisma/client").$Enums.BetStatus;
         stake: import("@prisma/client/runtime/library").Decimal;
         odds: import("@prisma/client/runtime/library").Decimal;
+        status: import(".prisma/client").$Enums.BetStatus;
+        tipster: string;
         unitsProfit: import("@prisma/client/runtime/library").Decimal | null;
         amountWagered: import("@prisma/client/runtime/library").Decimal;
         realProfit: import("@prisma/client/runtime/library").Decimal | null;
@@ -41,11 +41,11 @@ export declare class TipstersService {
         id: string;
         userId: string;
         date: Date;
-        tipster: string;
         event: string;
-        status: import(".prisma/client").$Enums.BetStatus;
         stake: import("@prisma/client/runtime/library").Decimal;
         odds: import("@prisma/client/runtime/library").Decimal;
+        status: import(".prisma/client").$Enums.BetStatus;
+        tipster: string;
         unitsProfit: import("@prisma/client/runtime/library").Decimal | null;
         amountWagered: import("@prisma/client/runtime/library").Decimal;
         realProfit: import("@prisma/client/runtime/library").Decimal | null;
@@ -55,11 +55,11 @@ export declare class TipstersService {
         id: string;
         userId: string;
         date: Date;
-        tipster: string;
         event: string;
-        status: import(".prisma/client").$Enums.BetStatus;
         stake: import("@prisma/client/runtime/library").Decimal;
         odds: import("@prisma/client/runtime/library").Decimal;
+        status: import(".prisma/client").$Enums.BetStatus;
+        tipster: string;
         unitsProfit: import("@prisma/client/runtime/library").Decimal | null;
         amountWagered: import("@prisma/client/runtime/library").Decimal;
         realProfit: import("@prisma/client/runtime/library").Decimal | null;
@@ -69,11 +69,11 @@ export declare class TipstersService {
         id: string;
         userId: string;
         date: Date;
-        tipster: string;
         event: string;
-        status: import(".prisma/client").$Enums.BetStatus;
         stake: import("@prisma/client/runtime/library").Decimal;
         odds: import("@prisma/client/runtime/library").Decimal;
+        status: import(".prisma/client").$Enums.BetStatus;
+        tipster: string;
         unitsProfit: import("@prisma/client/runtime/library").Decimal | null;
         amountWagered: import("@prisma/client/runtime/library").Decimal;
         realProfit: import("@prisma/client/runtime/library").Decimal | null;

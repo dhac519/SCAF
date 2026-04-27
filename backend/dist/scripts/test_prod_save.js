@@ -12,7 +12,7 @@ async function main() {
                 stake: 1.2222,
                 odds: 1.2222,
                 status: 'PENDING',
-                userId: '36b71d57-b1b7-47fc-aacf-17b16120a42d',
+                userId: 'f3eaad53-aaaa-46df-ac9e-212d34492cbd',
                 amountWagered: 0
             }
         });
