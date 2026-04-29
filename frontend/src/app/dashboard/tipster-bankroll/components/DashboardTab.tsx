@@ -160,7 +160,7 @@ export function DashboardTab({ dynamicStats, bank, uniqueTipsters, uniqueMonths,
                         </tr>
                      </thead>
                      <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50 font-semibold text-slate-700 dark:text-slate-300">
-                        {[...filteredBets].slice(-5).reverse().map((b: any) => (
+                        {[...filteredBets].sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5).map((b: any) => (
                            <tr key={b.id} className="hover:bg-slate-50 dark:hover:bg-slate-800">
                               <td className="px-4 py-3 max-w-[150px] truncate" title={b.event}>{b.event}</td>
                               <td className="px-4 py-3 text-center text-blue-500">{parseFloat(Number(b.odds).toFixed(6))}</td>
