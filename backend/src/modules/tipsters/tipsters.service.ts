@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateTipsterBetDto } from './dto/create-tipster-bet.dto';
 import { BetStatus } from '@prisma/client';
@@ -16,24 +20,27 @@ export class TipstersService {
           userId,
           initialBank: 100000, // Capital ficticio inicial (100k)
           currentBank: 100000,
-          unitValue: 100,      // Valor por unidad
-        }
+          unitValue: 100, // Valor por unidad
+        },
       });
     }
     return bank;
   }
 
   // Permite actualizar configuración del banco
-  async updateBank(userId: string, data: { initialBank?: number, unitValue?: number }) {
+  async updateBank(
+    userId: string,
+    data: { initialBank?: number; unitValue?: number },
+  ) {
     const bank = await this.getOrCreateBank(userId);
-    
+
     const updated = await this.prisma.tipsterBank.update({
       where: { id: bank.id },
       data,
     });
 
     // Siempre recalculamos si cambia el bank inicial o el valor por unidad
-    // (Ya que el valor por unidad afecta al dinero real apostado en cada bet si se recalculase, 
+    // (Ya que el valor por unidad afecta al dinero real apostado en cada bet si se recalculase,
     // pero por ahora solo el bank inicial es crítico para la secuencia acumulada)
     await this.recalculateBalances(userId, this.prisma);
 
@@ -43,7 +50,14 @@ export class TipstersService {
   async createBet(userId: string, createTipsterBetDto: CreateTipsterBetDto) {
     return this.prisma.$transaction(async (prisma) => {
       const bank = await this.getOrCreateBank(userId);
-      const { stake, odds, status = BetStatus.PENDING, tipster, event, date } = createTipsterBetDto;
+      const {
+        stake,
+        odds,
+        status = BetStatus.PENDING,
+        tipster,
+        event,
+        date,
+      } = createTipsterBetDto;
 
       const amountWagered = stake * Number(bank.unitValue);
       let unitsProfit = null;
@@ -73,7 +87,7 @@ export class TipstersService {
           realProfit,
           cumulativeBalance: 0, // Se recalcula inmediatamente
           date: date ? new Date(date) : new Date(),
-        }
+        },
       });
 
       // Recalcular todo el banco para asegurar consistencia cronológica
@@ -111,7 +125,7 @@ export class TipstersService {
           status,
           unitsProfit,
           realProfit,
-        }
+        },
       });
 
       // Recalcular todo el historial
@@ -127,11 +141,20 @@ export class TipstersService {
       if (!bet) throw new NotFoundException('Pronóstico no encontrado');
 
       const bank = await this.getOrCreateBank(userId);
-      const status = updateData.status !== undefined ? updateData.status : bet.status;
-      const stake = updateData.stake !== undefined ? Number(updateData.stake) : Number(bet.stake);
-      const odds = updateData.odds !== undefined ? Number(updateData.odds) : Number(bet.odds);
-      const tipster = updateData.tipster !== undefined ? updateData.tipster : bet.tipster;
-      const event = updateData.event !== undefined ? updateData.event : bet.event;
+      const status =
+        updateData.status !== undefined ? updateData.status : bet.status;
+      const stake =
+        updateData.stake !== undefined
+          ? Number(updateData.stake)
+          : Number(bet.stake);
+      const odds =
+        updateData.odds !== undefined
+          ? Number(updateData.odds)
+          : Number(bet.odds);
+      const tipster =
+        updateData.tipster !== undefined ? updateData.tipster : bet.tipster;
+      const event =
+        updateData.event !== undefined ? updateData.event : bet.event;
 
       const amountWagered = stake * Number(bank.unitValue);
       let unitsProfit = null;
@@ -159,7 +182,7 @@ export class TipstersService {
           amountWagered,
           unitsProfit,
           realProfit,
-        }
+        },
       });
 
       // Recalcular todo el historial
@@ -172,7 +195,7 @@ export class TipstersService {
   async findAll(userId: string) {
     return this.prisma.tipsterBet.findMany({
       where: { userId },
-      orderBy: { date: 'desc' }
+      orderBy: { date: 'desc' },
     });
   }
 
@@ -182,10 +205,10 @@ export class TipstersService {
       if (!bet) throw new NotFoundException('Pronóstico no encontrado');
 
       await prisma.tipsterBet.delete({ where: { id } });
-      
+
       // Recalcular todo el historial
       await this.recalculateBalances(userId, prisma);
-      
+
       return { success: true };
     });
   }
@@ -194,7 +217,7 @@ export class TipstersService {
     const bank = await this.getOrCreateBank(userId);
     const bets = await this.prisma.tipsterBet.findMany({
       where: { userId },
-      orderBy: { date: 'asc' }
+      orderBy: { date: 'asc' },
     });
 
     let totalWagered = 0;
@@ -206,11 +229,11 @@ export class TipstersService {
 
     const evolution: any[] = []; // Chart data
 
-    bets.forEach(bet => {
+    bets.forEach((bet) => {
       if (bet.status !== BetStatus.PENDING) {
-         totalWagered += Number(bet.amountWagered);
+        totalWagered += Number(bet.amountWagered);
       }
-      
+
       if (bet.realProfit !== null) totalRealProfit += Number(bet.realProfit);
       if (bet.unitsProfit !== null) totalUnits += Number(bet.unitsProfit);
 
@@ -221,12 +244,13 @@ export class TipstersService {
       if (bet.status !== BetStatus.PENDING) {
         evolution.push({
           date: bet.date,
-          balance: Number(bet.cumulativeBalance) || 0
+          balance: Number(bet.cumulativeBalance) || 0,
         });
       }
     });
 
-    const yieldPercent = totalWagered > 0 ? (totalRealProfit / totalWagered) * 100 : 0;
+    const yieldPercent =
+      totalWagered > 0 ? (totalRealProfit / totalWagered) * 100 : 0;
     const resolved = won + lost;
     const winRate = resolved > 0 ? (won / resolved) * 100 : 0;
 
@@ -234,7 +258,7 @@ export class TipstersService {
       bank: {
         initial: Number(bank.initialBank),
         current: Number(bank.currentBank),
-        unitValue: Number(bank.unitValue)
+        unitValue: Number(bank.unitValue),
       },
       stats: {
         totalBets: bets.length,
@@ -244,43 +268,52 @@ export class TipstersService {
         totalUnits,
         yieldPercent,
         winRate,
-        winLossMatches: { won, lost, voided }
+        winLossMatches: { won, lost, voided },
       },
-      evolution // for Line Chart
+      evolution, // for Line Chart
     };
   }
 
   async getRanking(userId: string) {
     const bets = await this.prisma.tipsterBet.findMany({ where: { userId } });
-    
+
     // Group by tipster
     const map = new Map<string, any>();
 
-    bets.forEach(b => {
+    bets.forEach((b) => {
       const t = b.tipster;
       if (!map.has(t)) {
-        map.set(t, { tipster: t, count: 0, units: 0, wagered: 0, profit: 0, won: 0, lost: 0, voided: 0 });
+        map.set(t, {
+          tipster: t,
+          count: 0,
+          units: 0,
+          wagered: 0,
+          profit: 0,
+          won: 0,
+          lost: 0,
+          voided: 0,
+        });
       }
       const data = map.get(t);
       data.count++;
-      
+
       if (b.status !== BetStatus.PENDING) {
         data.wagered += Number(b.amountWagered);
         data.units += Number(b.unitsProfit || 0);
         data.profit += Number(b.realProfit || 0);
-        
+
         if (b.status === 'WON') data.won++;
         else if (b.status === 'LOST') data.lost++;
         else if (b.status === 'VOID') data.voided++;
       }
     });
 
-    const ranking = Array.from(map.values()).map(r => {
+    const ranking = Array.from(map.values()).map((r) => {
       const resolved = r.won + r.lost;
       return {
         ...r,
         yieldPercent: r.wagered > 0 ? (r.profit / r.wagered) * 100 : 0,
-        winRate: resolved > 0 ? (r.won / resolved) * 100 : 0
+        winRate: resolved > 0 ? (r.won / resolved) * 100 : 0,
       };
     });
 
@@ -296,7 +329,7 @@ export class TipstersService {
 
     const allBets = await prisma.tipsterBet.findMany({
       where: { userId },
-      orderBy: { date: 'asc' }
+      orderBy: { date: 'asc' },
     });
 
     let runningBalance = Number(bank.initialBank);
@@ -305,17 +338,17 @@ export class TipstersService {
       if (bet.status !== BetStatus.PENDING) {
         runningBalance += Number(bet.realProfit || 0);
       }
-      
+
       await prisma.tipsterBet.update({
         where: { id: bet.id },
-        data: { cumulativeBalance: runningBalance }
+        data: { cumulativeBalance: runningBalance },
       });
     }
 
     // Actualizar el saldo actual del banco
     await prisma.tipsterBank.update({
       where: { userId },
-      data: { currentBank: runningBalance }
+      data: { currentBank: runningBalance },
     });
   }
 }

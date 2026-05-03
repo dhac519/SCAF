@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsString, IsOptional, IsInt, IsNumber } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsOptional,
+  IsInt,
+  IsNumber,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateCategoryDto {
@@ -11,7 +17,7 @@ export class CreateSubcategoryDto {
   @IsNotEmpty()
   @IsString()
   name: string;
-  
+
   @IsNotEmpty()
   @IsString()
   categoryId: string;

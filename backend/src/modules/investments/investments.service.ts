@@ -30,11 +30,12 @@ export class InvestmentsService {
   // INVESTMENTS
   async create(userId: string, createInvestmentDto: CreateInvestmentDto) {
     const { platformId, ...rest } = createInvestmentDto;
-    
+
     const data: any = {
       ...rest,
       userId,
-      currentValue: createInvestmentDto.currentValue ?? createInvestmentDto.initialAmount,
+      currentValue:
+        createInvestmentDto.currentValue ?? createInvestmentDto.initialAmount,
     };
 
     if (platformId) {
@@ -81,7 +82,11 @@ export class InvestmentsService {
     return investment;
   }
 
-  async update(userId: string, id: string, updateInvestmentDto: UpdateInvestmentDto) {
+  async update(
+    userId: string,
+    id: string,
+    updateInvestmentDto: UpdateInvestmentDto,
+  ) {
     await this.findOne(userId, id);
     return this.prisma.investment.update({
       where: { id },
@@ -99,7 +104,7 @@ export class InvestmentsService {
   // TRANSACTIONS
   async addTransaction(userId: string, dto: CreateInvestmentTransactionDto) {
     const investment = await this.findOne(userId, dto.investmentId);
-    
+
     // Create transaction
     const transaction = await this.prisma.investmentTransaction.create({
       data: {

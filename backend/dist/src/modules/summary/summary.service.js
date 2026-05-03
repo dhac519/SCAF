@@ -65,14 +65,18 @@ let SummaryService = class SummaryService {
             _sum: { result: true },
         });
         const tipsterBank = await this.prisma.tipsterBank.findUnique({
-            where: { userId }
+            where: { userId },
         });
         return {
             distribution: [
                 { label: 'Efectivo', value: totalCash, color: '#3b82f6' },
                 { label: 'Inversiones', value: totalInvestments, color: '#10b981' },
                 { label: 'Apuestas', value: totalBetsStake, color: '#a855f7' },
-                { label: 'Colecciones', value: totalCollectionsValue, color: '#f59e0b' },
+                {
+                    label: 'Colecciones',
+                    value: totalCollectionsValue,
+                    color: '#f59e0b',
+                },
             ],
             monthlyPulse,
             stats: {

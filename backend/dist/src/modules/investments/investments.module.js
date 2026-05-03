@@ -19,7 +19,7 @@ exports.InvestmentsModule = InvestmentsModule = __decorate([
     (0, common_1.Module)({
         imports: [prisma_module_1.PrismaModule],
         providers: [investments_service_1.InvestmentsService, price_service_1.PriceService],
-        controllers: [investments_controller_1.InvestmentsController]
+        controllers: [investments_controller_1.InvestmentsController],
     })
 ], InvestmentsModule);
 //# sourceMappingURL=investments.module.js.map

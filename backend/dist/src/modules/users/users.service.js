@@ -66,7 +66,7 @@ let UsersService = UsersService_1 = class UsersService {
                         password: hashedPassword,
                         name: 'Administrador Principal',
                         role: 'ADMIN',
-                        modules: ["FINANCE", "BETS", "INVESTMENTS", "COLLECTIONS"],
+                        modules: ['FINANCE', 'BETS', 'INVESTMENTS', 'COLLECTIONS'],
                     },
                 });
                 this.logger.log('Default admin user created successfully.');
@@ -124,6 +124,13 @@ let UsersService = UsersService_1 = class UsersService {
         });
         const { password, ...result } = updatedUser;
         return result;
+    }
+    async updateHeartbeat(id) {
+        return this.prisma.user.update({
+            where: { id },
+            data: { lastActiveAt: new Date() },
+            select: { id: true, lastActiveAt: true },
+        });
     }
 };
 exports.UsersService = UsersService;

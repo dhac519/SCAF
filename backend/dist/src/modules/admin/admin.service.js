@@ -59,12 +59,14 @@ let AdminService = class AdminService {
                 name: true,
                 role: true,
                 modules: true,
+                isActive: true,
+                lastActiveAt: true,
                 createdAt: true,
                 _count: {
-                    select: { wallets: true }
-                }
+                    select: { wallets: true },
+                },
             },
-            orderBy: { createdAt: 'desc' }
+            orderBy: { createdAt: 'desc' },
         });
     }
     async deleteUser(id) {
@@ -73,7 +75,7 @@ let AdminService = class AdminService {
     async updateUserModules(id, modules) {
         return this.prisma.user.update({
             where: { id },
-            data: { modules }
+            data: { modules },
         });
     }
     async resetUserPassword(id, newPassword) {
@@ -84,7 +86,13 @@ let AdminService = class AdminService {
         const hashedPassword = await bcrypt.hash(newPassword, salt);
         return this.prisma.user.update({
             where: { id },
-            data: { password: hashedPassword }
+            data: { password: hashedPassword },
+        });
+    }
+    async toggleUserActiveStatus(id, isActive) {
+        return this.prisma.user.update({
+            where: { id },
+            data: { isActive },
         });
     }
     async getSystemStats() {
@@ -96,8 +104,22 @@ let AdminService = class AdminService {
             users: totalUsers,
             wallets: totalWallets,
             collections: totalCollections,
-            transactions: totalTransactions
+            transactions: totalTransactions,
         };
+    }
+    async getAllSupportTickets() {
+        return this.prisma.supportTicket.findMany({
+            orderBy: { createdAt: 'desc' },
+        });
+    }
+    async updateSupportTicketStatus(id, status) {
+        return this.prisma.supportTicket.update({
+            where: { id },
+            data: { status },
+        });
+    }
+    async deleteSupportTicket(id) {
+        return this.prisma.supportTicket.delete({ where: { id } });
     }
 };
 exports.AdminService = AdminService;

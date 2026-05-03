@@ -74,7 +74,9 @@ __decorate([
 ], InvestmentsController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)('market-trends'),
-    (0, swagger_1.ApiOperation)({ summary: 'Obtener tendencias del mercado (Cripto y Divisas)' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Obtener tendencias del mercado (Cripto y Divisas)',
+    }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)

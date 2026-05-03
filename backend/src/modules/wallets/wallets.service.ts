@@ -48,7 +48,9 @@ export class WalletsService {
       where: { id, userId },
     });
     if (!wallet) {
-      throw new NotFoundException('Billetera no encontrada o no pertenece al usuario');
+      throw new NotFoundException(
+        'Billetera no encontrada o no pertenece al usuario',
+      );
     }
     return wallet;
   }

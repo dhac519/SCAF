@@ -46,13 +46,16 @@ exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
 const users_service_1 = require("../users/users.service");
+const prisma_service_1 = require("../../prisma/prisma.service");
 const bcrypt = __importStar(require("bcryptjs"));
 let AuthService = class AuthService {
     usersService;
     jwtService;
-    constructor(usersService, jwtService) {
+    prisma;
+    constructor(usersService, jwtService, prisma) {
         this.usersService = usersService;
         this.jwtService = jwtService;
+        this.prisma = prisma;
     }
     async register(createUserDto) {
         return this.usersService.create(createUserDto);
@@ -62,11 +65,19 @@ let AuthService = class AuthService {
         if (!user) {
             throw new common_1.UnauthorizedException('Credenciales inválidas');
         }
+        if (!user.isActive) {
+            throw new common_1.UnauthorizedException('Tu cuenta ha sido desactivada. Por favor comunícate con el Administrador.');
+        }
         const isPasswordValid = await bcrypt.compare(loginDto.password, user.password);
         if (!isPasswordValid) {
             throw new common_1.UnauthorizedException('Credenciales inválidas');
         }
-        const payload = { email: user.email, sub: user.id, role: user.role, modules: user.modules };
+        const payload = {
+            email: user.email,
+            sub: user.id,
+            role: user.role,
+            modules: user.modules,
+        };
         return {
             access_token: this.jwtService.sign(payload),
             user: {
@@ -74,15 +85,24 @@ let AuthService = class AuthService {
                 name: user.name,
                 email: user.email,
                 role: user.role,
-                modules: user.modules
-            }
+                modules: user.modules,
+            },
         };
+    }
+    async heartbeat(userId) {
+        return this.usersService.updateHeartbeat(userId);
+    }
+    async createSupportTicket(email, reason) {
+        return this.prisma.supportTicket.create({
+            data: { email, reason },
+        });
     }
 };
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [users_service_1.UsersService,
-        jwt_1.JwtService])
+        jwt_1.JwtService,
+        prisma_service_1.PrismaService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

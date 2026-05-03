@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateBetDto } from './dto/create-bet.dto';
 import { ResolveBetDto } from './dto/resolve-bet.dto';
@@ -10,7 +14,7 @@ export class BetsService {
 
   async create(userId: string, createBetDto: CreateBetDto) {
     const { walletId, ...betData } = createBetDto;
-    
+
     // Si envían walletId, verificamos que exista y sea del usuario
     if (walletId) {
       const wallet = await this.prisma.wallet.findFirst({
@@ -77,7 +81,7 @@ export class BetsService {
     let totalRetornado = 0;
 
     if (resolveBetDto.status === BetStatus.WON) {
-      result = (stake * odds) - stake; // Ganancia neta
+      result = stake * odds - stake; // Ganancia neta
       totalRetornado = stake * odds;
     } else if (resolveBetDto.status === BetStatus.LOST) {
       result = -stake; // Pérdida total de lo apostado
@@ -108,7 +112,7 @@ export class BetsService {
       });
       if (!bettingWallet) {
         bettingWallet = await prisma.wallet.create({
-          data: { name: 'Mi Casa de Apuestas', type: 'BETTING', userId }
+          data: { name: 'Mi Casa de Apuestas', type: 'BETTING', userId },
         });
       }
 
@@ -134,7 +138,7 @@ export class BetsService {
 
   async remove(userId: string, id: string) {
     const bet = await this.findOne(userId, id);
-    
+
     return this.prisma.$transaction(async (prisma) => {
       // Si la apuesta estaba pendiente y vinculada a billetera, devolvemos el dinero (Void) y luego eliminamos.
       if (bet.status === BetStatus.PENDING && bet.walletId) {
@@ -195,8 +199,11 @@ export class BetsService {
         summary.totalStake += stake;
         summary.totalProfit += result;
         resolvedCount++;
-        
-        if (bet.status === BetStatus.WON || (bet.status === BetStatus.CASHOUT && result > 0)) {
+
+        if (
+          bet.status === BetStatus.WON ||
+          (bet.status === BetStatus.CASHOUT && result > 0)
+        ) {
           wonCount++;
         }
       }
@@ -210,19 +217,29 @@ export class BetsService {
         event: bet.event,
       });
 
-      const sportData = sportsMap.get(bet.sport) || { name: bet.sport, profit: 0, count: 0 };
+      const sportData = sportsMap.get(bet.sport) || {
+        name: bet.sport,
+        profit: 0,
+        count: 0,
+      };
       sportData.profit += result;
       sportData.count++;
       sportsMap.set(bet.sport, sportData);
     });
 
     summary.winRate = resolvedCount > 0 ? (wonCount / resolvedCount) * 100 : 0;
-    summary.roi = summary.totalStake > 0 ? (summary.totalProfit / summary.totalStake) * 100 : 0;
+    summary.roi =
+      summary.totalStake > 0
+        ? (summary.totalProfit / summary.totalStake) * 100
+        : 0;
 
     return {
       summary,
       history,
-      distribution: Object.entries(distribution).map(([name, value]) => ({ name, value })),
+      distribution: Object.entries(distribution).map(([name, value]) => ({
+        name,
+        value,
+      })),
       sports: Array.from(sportsMap.values()),
     };
   }

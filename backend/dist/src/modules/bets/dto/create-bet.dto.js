@@ -21,7 +21,10 @@ class CreateBetDto {
 }
 exports.CreateBetDto = CreateBetDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'Real Madrid vs Barcelona', description: 'Evento deportivo u otro' }),
+    (0, swagger_1.ApiProperty)({
+        example: 'Real Madrid vs Barcelona',
+        description: 'Evento deportivo u otro',
+    }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
@@ -39,13 +42,19 @@ __decorate([
     __metadata("design:type", Number)
 ], CreateBetDto.prototype, "stake", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 1.85, description: 'Cuota de la apuesta (formato decimal)' }),
+    (0, swagger_1.ApiProperty)({
+        example: 1.85,
+        description: 'Cuota de la apuesta (formato decimal)',
+    }),
     (0, class_validator_1.IsNumber)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", Number)
 ], CreateBetDto.prototype, "odds", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ example: 'uuid-billetera', description: 'ID de la billetera origen' }),
+    (0, swagger_1.ApiPropertyOptional)({
+        example: 'uuid-billetera',
+        description: 'ID de la billetera origen',
+    }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)

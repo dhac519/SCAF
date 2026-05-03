@@ -24,11 +24,13 @@ let CollectionsService = class CollectionsService {
         return this.prisma.collectionCategory.findMany({
             where: { userId },
             include: { subcategories: true },
-            orderBy: { name: 'asc' }
+            orderBy: { name: 'asc' },
         });
     }
     async createSubcategory(dto, userId) {
-        return this.prisma.collectionSubcategory.create({ data: { ...dto, userId } });
+        return this.prisma.collectionSubcategory.create({
+            data: { ...dto, userId },
+        });
     }
     async createItem(dto, userId) {
         return this.prisma.collectionItem.create({ data: { ...dto, userId } });
@@ -37,11 +39,13 @@ let CollectionsService = class CollectionsService {
         return this.prisma.collectionItem.findMany({
             where: { userId },
             include: { category: true, subcategory: true },
-            orderBy: { createdAt: 'desc' }
+            orderBy: { createdAt: 'desc' },
         });
     }
     async removeItem(id, userId) {
-        const item = await this.prisma.collectionItem.findFirst({ where: { id, userId } });
+        const item = await this.prisma.collectionItem.findFirst({
+            where: { id, userId },
+        });
         if (!item)
             throw new common_1.NotFoundException('Item not found');
         return this.prisma.collectionItem.delete({ where: { id } });

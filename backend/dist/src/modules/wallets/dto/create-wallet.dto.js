@@ -19,19 +19,28 @@ class CreateWalletDto {
 }
 exports.CreateWalletDto = CreateWalletDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'Ahorros BCP', description: 'Nombre de la cuenta o billetera' }),
+    (0, swagger_1.ApiProperty)({
+        example: 'Ahorros BCP',
+        description: 'Nombre de la cuenta o billetera',
+    }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateWalletDto.prototype, "name", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ example: 1500.50, description: 'Saldo inicial de la billetera' }),
+    (0, swagger_1.ApiPropertyOptional)({
+        example: 1500.5,
+        description: 'Saldo inicial de la billetera',
+    }),
     (0, class_validator_1.IsNumber)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Number)
 ], CreateWalletDto.prototype, "balance", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ example: 'PEN', description: 'Moneda de la billetera' }),
+    (0, swagger_1.ApiPropertyOptional)({
+        example: 'PEN',
+        description: 'Moneda de la billetera',
+    }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)

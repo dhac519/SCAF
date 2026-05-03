@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { WikiService } from './wiki.service';
 import { CreateFolderDto } from './dto/create-folder.dto';
 import { CreateTopicDto } from './dto/create-topic.dto';
@@ -60,7 +70,11 @@ export class WikiController {
 
   @Patch('notes/:id')
   @ApiOperation({ summary: 'Actualizar una nota' })
-  updateNote(@Request() req: any, @Param('id') id: string, @Body() updateNoteDto: any) {
+  updateNote(
+    @Request() req: any,
+    @Param('id') id: string,
+    @Body() updateNoteDto: any,
+  ) {
     return this.wikiService.updateNote(req.user.userId, id, updateNoteDto);
   }
 

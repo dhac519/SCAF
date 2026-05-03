@@ -78,7 +78,7 @@ let BetsService = class BetsService {
         let result = null;
         let totalRetornado = 0;
         if (resolveBetDto.status === client_1.BetStatus.WON) {
-            result = (stake * odds) - stake;
+            result = stake * odds - stake;
             totalRetornado = stake * odds;
         }
         else if (resolveBetDto.status === client_1.BetStatus.LOST) {
@@ -109,7 +109,7 @@ let BetsService = class BetsService {
             });
             if (!bettingWallet) {
                 bettingWallet = await prisma.wallet.create({
-                    data: { name: 'Mi Casa de Apuestas', type: 'BETTING', userId }
+                    data: { name: 'Mi Casa de Apuestas', type: 'BETTING', userId },
                 });
             }
             if (totalRetornado > 0) {
@@ -182,7 +182,8 @@ let BetsService = class BetsService {
                 summary.totalStake += stake;
                 summary.totalProfit += result;
                 resolvedCount++;
-                if (bet.status === client_1.BetStatus.WON || (bet.status === client_1.BetStatus.CASHOUT && result > 0)) {
+                if (bet.status === client_1.BetStatus.WON ||
+                    (bet.status === client_1.BetStatus.CASHOUT && result > 0)) {
                     wonCount++;
                 }
             }
@@ -193,17 +194,27 @@ let BetsService = class BetsService {
                 profit: Number(cumulativeProfit.toFixed(2)),
                 event: bet.event,
             });
-            const sportData = sportsMap.get(bet.sport) || { name: bet.sport, profit: 0, count: 0 };
+            const sportData = sportsMap.get(bet.sport) || {
+                name: bet.sport,
+                profit: 0,
+                count: 0,
+            };
             sportData.profit += result;
             sportData.count++;
             sportsMap.set(bet.sport, sportData);
         });
         summary.winRate = resolvedCount > 0 ? (wonCount / resolvedCount) * 100 : 0;
-        summary.roi = summary.totalStake > 0 ? (summary.totalProfit / summary.totalStake) * 100 : 0;
+        summary.roi =
+            summary.totalStake > 0
+                ? (summary.totalProfit / summary.totalStake) * 100
+                : 0;
         return {
             summary,
             history,
-            distribution: Object.entries(distribution).map(([name, value]) => ({ name, value })),
+            distribution: Object.entries(distribution).map(([name, value]) => ({
+                name,
+                value,
+            })),
             sports: Array.from(sportsMap.values()),
         };
     }

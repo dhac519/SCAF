@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/authStore';
-import { LayoutDashboard, Wallet, TrendingUp, Target, LogOut, Menu, X, Loader2, Coins, ShieldAlert, Lock, Activity, BookOpen } from 'lucide-react';
+import { LayoutDashboard, Wallet, TrendingUp, Target, LogOut, Menu, X, Loader2, Coins, ShieldAlert, Lock, Activity, BookOpen, Terminal } from 'lucide-react';
 import { toast } from 'sonner';
+import { api } from '@/lib/api';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -22,6 +23,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     initAuth();
   }, [checkAuth]);
 
+  // Heartbeat ping to keep lastActiveAt updated
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    
+    // Initial ping
+    api.patch('/auth/heartbeat').catch(() => {});
+    
+    // Ping every 60 seconds
+    const interval = setInterval(() => {
+      api.patch('/auth/heartbeat').catch(() => {});
+    }, 60000);
+    
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
+
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       router.push('/login');
@@ -35,13 +51,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     '/dashboard/collections': 'COLLECTIONS',
     '/dashboard/tipster-bankroll': 'TIPSTER_BANKROLL',
     '/dashboard/wiki': 'WIKI',
+    '/dashboard/netops': 'NETOPS',
   };
 
   useEffect(() => {
     if (!isLoading && isAuthenticated && user) {
       // Check if current route requires a module
       const requiredModule = routeModuleMap[pathname];
-      if (requiredModule && !user.modules?.includes(requiredModule)) {
+      if (requiredModule && user.role !== 'ADMIN' && !user.modules?.includes(requiredModule)) {
         toast.error('No tienes acceso a este módulo');
         router.push('/dashboard');
       }
@@ -59,6 +76,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const baseNavItems = [
     { name: 'General', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Wiki Hub', href: '/dashboard/wiki', icon: BookOpen },
+    { name: 'Net-Ops Hub', href: '/dashboard/netops', icon: Terminal, module: 'NETOPS' },
     { name: 'Finanzas', href: '/dashboard/finances', icon: Wallet, module: 'FINANCE' },
     { name: 'Inversiones', href: '/dashboard/investments', icon: TrendingUp, module: 'INVESTMENTS' },
     { name: 'Apuestas', href: '/dashboard/bets', icon: Target, module: 'BETS' },
@@ -73,7 +91,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   const filteredNavItems = baseNavItems.filter(item => 
-    !item.module || user?.modules?.includes(item.module)
+    user?.role === 'ADMIN' || !item.module || user?.modules?.includes(item.module)
   );
 
   const navItems = user?.role === 'ADMIN' 

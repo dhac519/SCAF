@@ -28,7 +28,18 @@ let TipstersController = class TipstersController {
     }
     async seedFakeData(req) {
         const tipsters = ['Sergi', 'S.Live', 'Personalizado'];
-        const events = ['Alcaraz Gana', 'Más de 2.5 goles', 'Ambos marcan', 'Nadal Hándicap -1.5', 'Empate al descanso', 'Over 21.5 juegos', 'Djokovic Gana 3-0', 'Menos de 10.5 córners', 'Lakers a Ganar', 'Más de 200 pts NBA'];
+        const events = [
+            'Alcaraz Gana',
+            'Más de 2.5 goles',
+            'Ambos marcan',
+            'Nadal Hándicap -1.5',
+            'Empate al descanso',
+            'Over 21.5 juegos',
+            'Djokovic Gana 3-0',
+            'Menos de 10.5 córners',
+            'Lakers a Ganar',
+            'Más de 200 pts NBA',
+        ];
         const statuses = ['WON', 'LOST', 'VOID', 'WON', 'WON'];
         const dates = [];
         const now = new Date();

@@ -24,7 +24,9 @@ export class WikiService {
   }
 
   async removeFolder(userId: string, id: string) {
-    const folder = await this.prisma.wikiFolder.findFirst({ where: { id, userId } });
+    const folder = await this.prisma.wikiFolder.findFirst({
+      where: { id, userId },
+    });
     if (!folder) throw new NotFoundException('Carpeta no encontrada');
     return this.prisma.wikiFolder.delete({ where: { id } });
   }
@@ -37,7 +39,9 @@ export class WikiService {
   }
 
   async removeTopic(userId: string, id: string) {
-    const topic = await this.prisma.wikiTopic.findFirst({ where: { id, userId } });
+    const topic = await this.prisma.wikiTopic.findFirst({
+      where: { id, userId },
+    });
     if (!topic) throw new NotFoundException('Tema no encontrado');
     return this.prisma.wikiTopic.delete({ where: { id } });
   }
@@ -50,7 +54,9 @@ export class WikiService {
   }
 
   async updateNote(userId: string, id: string, updateNoteDto: any) {
-    const note = await this.prisma.wikiNote.findFirst({ where: { id, userId } });
+    const note = await this.prisma.wikiNote.findFirst({
+      where: { id, userId },
+    });
     if (!note) throw new NotFoundException('Nota no encontrada');
     return this.prisma.wikiNote.update({
       where: { id },
@@ -68,7 +74,9 @@ export class WikiService {
   }
 
   async removeNote(userId: string, id: string) {
-    const note = await this.prisma.wikiNote.findFirst({ where: { id, userId } });
+    const note = await this.prisma.wikiNote.findFirst({
+      where: { id, userId },
+    });
     if (!note) throw new NotFoundException('Nota no encontrada');
     return this.prisma.wikiNote.delete({ where: { id } });
   }

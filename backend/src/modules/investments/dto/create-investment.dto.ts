@@ -1,4 +1,12 @@
-import { IsString, IsNotEmpty, IsEnum, IsNumber, IsOptional, IsDecimal, IsUUID } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsDecimal,
+  IsUUID,
+} from 'class-validator';
 
 export class CreateInvestmentDto {
   @IsString()

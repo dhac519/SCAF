@@ -18,7 +18,7 @@ exports.TransactionsModule = TransactionsModule = __decorate([
     (0, common_1.Module)({
         imports: [prisma_module_1.PrismaModule],
         providers: [transactions_service_1.TransactionsService],
-        controllers: [transactions_controller_1.TransactionsController]
+        controllers: [transactions_controller_1.TransactionsController],
     })
 ], TransactionsModule);
 //# sourceMappingURL=transactions.module.js.map

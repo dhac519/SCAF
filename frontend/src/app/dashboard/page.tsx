@@ -14,7 +14,8 @@ import {
   Lock,
   Sparkles,
   Rocket,
-  BookOpen
+  BookOpen,
+  Terminal
 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -32,7 +33,7 @@ export default function DashboardLobby() {
 
   const activeModules = user?.modules || [];
 
-  const ALL_MODULES = ['FINANCE', 'INVESTMENTS', 'BETS', 'COLLECTIONS', 'TIPSTER_BANKROLL', 'WIKI'];
+  const ALL_MODULES = ['FINANCE', 'INVESTMENTS', 'BETS', 'COLLECTIONS', 'TIPSTER_BANKROLL', 'WIKI', 'NETOPS'];
 
   const getModuleConfig = (moduleId: string) => {
     switch(moduleId) {
@@ -42,6 +43,7 @@ export default function DashboardLobby() {
       case 'COLLECTIONS': return { title: 'Colecciones', icon: Coins, color: 'bg-amber-500', href: '/dashboard/collections', desc: 'Administra el valor de tus preciadas piezas.' };
       case 'TIPSTER_BANKROLL': return { title: 'Tipsters', icon: Activity, color: 'bg-indigo-500', href: '/dashboard/tipster-bankroll', desc: 'Lleva tu récord público como pronosticador.' };
       case 'WIKI': return { title: 'Wiki Hub', icon: BookOpen, color: 'bg-rose-600', href: '/dashboard/wiki', desc: 'Tu base de conocimientos personal y notas técnicas.' };
+      case 'NETOPS': return { title: 'Net-Ops Hub', icon: Terminal, color: 'bg-teal-600', href: '/dashboard/netops', desc: 'Diccionario centralizado y generador de scripts.' };
       default: return null;
     }
   };

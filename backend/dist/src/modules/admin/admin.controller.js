@@ -39,6 +39,18 @@ let AdminController = class AdminController {
     resetPassword(id, password) {
         return this.adminService.resetUserPassword(id, password);
     }
+    updateUserActiveStatus(id, isActive) {
+        return this.adminService.toggleUserActiveStatus(id, isActive);
+    }
+    getSupportTickets() {
+        return this.adminService.getAllSupportTickets();
+    }
+    updateSupportTicketStatus(id, status) {
+        return this.adminService.updateSupportTicketStatus(id, status);
+    }
+    deleteSupportTicket(id) {
+        return this.adminService.deleteSupportTicket(id);
+    }
 };
 exports.AdminController = AdminController;
 __decorate([
@@ -76,6 +88,35 @@ __decorate([
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], AdminController.prototype, "resetPassword", null);
+__decorate([
+    (0, common_1.Patch)('users/:id/active'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)('isActive')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Boolean]),
+    __metadata("design:returntype", void 0)
+], AdminController.prototype, "updateUserActiveStatus", null);
+__decorate([
+    (0, common_1.Get)('support-tickets'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], AdminController.prototype, "getSupportTickets", null);
+__decorate([
+    (0, common_1.Patch)('support-tickets/:id/status'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)('status')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", void 0)
+], AdminController.prototype, "updateSupportTicketStatus", null);
+__decorate([
+    (0, common_1.Delete)('support-tickets/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], AdminController.prototype, "deleteSupportTicket", null);
 exports.AdminController = AdminController = __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),

@@ -25,12 +25,12 @@ export declare class TipstersService {
     }>;
     createBet(userId: string, createTipsterBetDto: CreateTipsterBetDto): Promise<{
         id: string;
+        status: import(".prisma/client").$Enums.BetStatus;
         userId: string;
         date: Date;
         event: string;
         stake: import("@prisma/client/runtime/library").Decimal;
         odds: import("@prisma/client/runtime/library").Decimal;
-        status: import(".prisma/client").$Enums.BetStatus;
         tipster: string;
         unitsProfit: import("@prisma/client/runtime/library").Decimal | null;
         amountWagered: import("@prisma/client/runtime/library").Decimal;
@@ -39,12 +39,12 @@ export declare class TipstersService {
     }>;
     updateBetStatus(userId: string, id: string, status: BetStatus): Promise<{
         id: string;
+        status: import(".prisma/client").$Enums.BetStatus;
         userId: string;
         date: Date;
         event: string;
         stake: import("@prisma/client/runtime/library").Decimal;
         odds: import("@prisma/client/runtime/library").Decimal;
-        status: import(".prisma/client").$Enums.BetStatus;
         tipster: string;
         unitsProfit: import("@prisma/client/runtime/library").Decimal | null;
         amountWagered: import("@prisma/client/runtime/library").Decimal;
@@ -53,12 +53,12 @@ export declare class TipstersService {
     }>;
     updateBet(userId: string, id: string, updateData: any): Promise<{
         id: string;
+        status: import(".prisma/client").$Enums.BetStatus;
         userId: string;
         date: Date;
         event: string;
         stake: import("@prisma/client/runtime/library").Decimal;
         odds: import("@prisma/client/runtime/library").Decimal;
-        status: import(".prisma/client").$Enums.BetStatus;
         tipster: string;
         unitsProfit: import("@prisma/client/runtime/library").Decimal | null;
         amountWagered: import("@prisma/client/runtime/library").Decimal;
@@ -67,12 +67,12 @@ export declare class TipstersService {
     }>;
     findAll(userId: string): Promise<{
         id: string;
+        status: import(".prisma/client").$Enums.BetStatus;
         userId: string;
         date: Date;
         event: string;
         stake: import("@prisma/client/runtime/library").Decimal;
         odds: import("@prisma/client/runtime/library").Decimal;
-        status: import(".prisma/client").$Enums.BetStatus;
         tipster: string;
         unitsProfit: import("@prisma/client/runtime/library").Decimal | null;
         amountWagered: import("@prisma/client/runtime/library").Decimal;

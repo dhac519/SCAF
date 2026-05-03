@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { BetsService } from './bets.service';
 import { CreateBetDto } from './dto/create-bet.dto';
 import { ResolveBetDto } from './dto/resolve-bet.dto';
@@ -37,8 +47,14 @@ export class BetsController {
   }
 
   @Patch(':id/resolve')
-  @ApiOperation({ summary: 'Resolver el estado de una apuesta (WON, LOST, VOID)' })
-  resolve(@Request() req: any, @Param('id') id: string, @Body() resolveBetDto: ResolveBetDto) {
+  @ApiOperation({
+    summary: 'Resolver el estado de una apuesta (WON, LOST, VOID)',
+  })
+  resolve(
+    @Request() req: any,
+    @Param('id') id: string,
+    @Body() resolveBetDto: ResolveBetDto,
+  ) {
     return this.betsService.resolve(req.user.userId, id, resolveBetDto);
   }
 

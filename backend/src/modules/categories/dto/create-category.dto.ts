@@ -8,7 +8,11 @@ export class CreateCategoryDto {
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty({ enum: TransactionType, example: TransactionType.INCOME, description: 'Tipo de transacción para esta categoría' })
+  @ApiProperty({
+    enum: TransactionType,
+    example: TransactionType.INCOME,
+    description: 'Tipo de transacción para esta categoría',
+  })
   @IsEnum(TransactionType)
   @IsNotEmpty()
   type: TransactionType;

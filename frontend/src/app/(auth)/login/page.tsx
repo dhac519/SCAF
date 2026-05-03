@@ -16,6 +16,10 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isAppealing, setIsAppealing] = useState(false);
+  const [appealReason, setAppealReason] = useState('');
+  const [submittingAppeal, setSubmittingAppeal] = useState(false);
+  const [appealSent, setAppealSent] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -29,6 +33,8 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsAppealing(false);
+    setAppealSent(false);
     setLoading(true);
 
     try {
@@ -42,6 +48,20 @@ export default function LoginPage() {
     }
   };
 
+  const handleAppeal = async () => {
+    if (!appealReason) return toast.error('Debes escribir un motivo');
+    setSubmittingAppeal(true);
+    try {
+      await api.post('/auth/support-ticket', { email, reason: appealReason });
+      setAppealSent(true);
+      toast.success('Ticket enviado al Administrador');
+    } catch (err) {
+      toast.error('Error al enviar el ticket');
+    } finally {
+      setSubmittingAppeal(false);
+    }
+  };
+
   return (
     <div className="flex bg-slate-50 relative min-h-screen items-center justify-center dark:bg-slate-950 px-4">
       <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
@@ -50,7 +70,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md relative z-10">
         <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden border border-slate-200 dark:border-slate-800 p-8 transition-all hover:shadow-2xl">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-2">Bienvenido a DHAC</h1>
+            <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-2">Bienvenido a SCAF</h1>
             <p className="text-slate-500 dark:text-slate-400">Ingresa tus credenciales para continuar</p>
           </div>
 
@@ -94,7 +114,57 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {error && <div className="text-red-500 text-sm font-medium text-center bg-red-50 dark:bg-red-900/30 p-2 rounded-lg">{error}</div>}
+            {error && (
+              <div className="text-red-500 text-sm font-medium text-center bg-red-50 dark:bg-red-900/30 p-3 rounded-xl flex flex-col items-center gap-2">
+                <span>{error}</span>
+                {error.includes('desactivada') && !isAppealing && !appealSent && (
+                  <button 
+                    type="button" 
+                    onClick={() => setIsAppealing(true)}
+                    className="text-xs font-bold bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 px-3 py-1.5 rounded-lg hover:bg-red-200 transition-colors"
+                  >
+                    ¿Crees que es un error? Apelar bloqueo
+                  </button>
+                )}
+              </div>
+            )}
+
+            {isAppealing && !appealSent && (
+              <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 animate-in fade-in zoom-in-95">
+                <p className="text-sm font-bold text-slate-900 dark:text-white mb-2">Apelar Bloqueo de Cuenta</p>
+                <textarea 
+                  value={appealReason}
+                  onChange={(e) => setAppealReason(e.target.value)}
+                  placeholder="Escribe aquí tu motivo o solicita que te habiliten..."
+                  className="w-full p-3 rounded-lg text-sm border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 mb-3 focus:outline-none focus:border-blue-500"
+                  rows={3}
+                ></textarea>
+                <div className="flex gap-2">
+                  <button 
+                    type="button" 
+                    onClick={() => setIsAppealing(false)}
+                    className="flex-1 py-2 text-xs font-bold text-slate-500 bg-slate-200 dark:bg-slate-700 rounded-lg"
+                  >
+                    Cancelar
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={handleAppeal}
+                    disabled={submittingAppeal}
+                    className="flex-1 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg flex justify-center items-center"
+                  >
+                    {submittingAppeal ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Enviar Ticket'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {appealSent && (
+              <div className="p-4 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-xl text-center animate-in fade-in">
+                <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">¡Apelación enviada exitosamente!</p>
+                <p className="text-xs text-emerald-500 mt-1">El administrador revisará tu caso pronto.</p>
+              </div>
+            )}
 
             <button
               type="submit"

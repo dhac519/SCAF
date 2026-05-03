@@ -25,7 +25,11 @@ __decorate([
     __metadata("design:type", String)
 ], CreateCategoryDto.prototype, "name", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ enum: client_1.TransactionType, example: client_1.TransactionType.INCOME, description: 'Tipo de transacción para esta categoría' }),
+    (0, swagger_1.ApiProperty)({
+        enum: client_1.TransactionType,
+        example: client_1.TransactionType.INCOME,
+        description: 'Tipo de transacción para esta categoría',
+    }),
     (0, class_validator_1.IsEnum)(client_1.TransactionType),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)

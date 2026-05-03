@@ -1,4 +1,10 @@
-import { Injectable, ConflictException, NotFoundException, OnModuleInit, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+  OnModuleInit,
+  Logger,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -14,17 +20,19 @@ export class UsersService implements OnModuleInit {
     try {
       const userCount = await this.prisma.user.count();
       if (userCount === 0) {
-        this.logger.log('No users found in database. Seeding default admin user...');
+        this.logger.log(
+          'No users found in database. Seeding default admin user...',
+        );
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash('adminpassword123', salt);
-        
+
         await this.prisma.user.create({
           data: {
             email: 'admin@scaf.com',
             password: hashedPassword,
             name: 'Administrador Principal',
             role: 'ADMIN',
-            modules: ["FINANCE", "BETS", "INVESTMENTS", "COLLECTIONS"],
+            modules: ['FINANCE', 'BETS', 'INVESTMENTS', 'COLLECTIONS'],
           },
         });
         this.logger.log('Default admin user created successfully.');
@@ -69,8 +77,8 @@ export class UsersService implements OnModuleInit {
       where: { id },
     });
     if (user) {
-       const { password, ...result } = user;
-       return result;
+      const { password, ...result } = user;
+      return result;
     }
     return null;
   }
@@ -94,5 +102,13 @@ export class UsersService implements OnModuleInit {
 
     const { password, ...result } = updatedUser;
     return result;
+  }
+
+  async updateHeartbeat(id: string) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { lastActiveAt: new Date() },
+      select: { id: true, lastActiveAt: true },
+    });
   }
 }

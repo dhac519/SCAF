@@ -1,4 +1,12 @@
-import { Controller, Get, Delete, Patch, Param, Body, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Delete,
+  Patch,
+  Param,
+  Body,
+  UseGuards,
+} from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -27,12 +35,41 @@ export class AdminController {
   }
 
   @Patch('users/:id/modules')
-  updateUserModules(@Param('id') id: string, @Body('modules') modules: string[]) {
+  updateUserModules(
+    @Param('id') id: string,
+    @Body('modules') modules: string[],
+  ) {
     return this.adminService.updateUserModules(id, modules);
   }
 
   @Patch('users/:id/password')
   resetPassword(@Param('id') id: string, @Body('password') password: string) {
     return this.adminService.resetUserPassword(id, password);
+  }
+
+  @Patch('users/:id/active')
+  updateUserActiveStatus(
+    @Param('id') id: string,
+    @Body('isActive') isActive: boolean,
+  ) {
+    return this.adminService.toggleUserActiveStatus(id, isActive);
+  }
+
+  @Get('support-tickets')
+  getSupportTickets() {
+    return this.adminService.getAllSupportTickets();
+  }
+
+  @Patch('support-tickets/:id/status')
+  updateSupportTicketStatus(
+    @Param('id') id: string,
+    @Body('status') status: string,
+  ) {
+    return this.adminService.updateSupportTicketStatus(id, status);
+  }
+
+  @Delete('support-tickets/:id')
+  deleteSupportTicket(@Param('id') id: string) {
+    return this.adminService.deleteSupportTicket(id);
   }
 }

@@ -9,7 +9,7 @@ let cachedApp: INestApplication;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
+
   app.enableCors();
 
   app.useGlobalPipes(
@@ -26,7 +26,7 @@ async function bootstrap() {
     .setVersion('1.0')
     .addBearerAuth()
     .build();
-  
+
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, documentFactory);
 
@@ -57,4 +57,3 @@ if (process.env.NODE_ENV !== 'production') {
     });
   });
 }
-

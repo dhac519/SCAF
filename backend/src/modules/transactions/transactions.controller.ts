@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
@@ -14,8 +24,14 @@ export class TransactionsController {
 
   @Post()
   @ApiOperation({ summary: 'Crear una nueva transacción' })
-  create(@Request() req: any, @Body() createTransactionDto: CreateTransactionDto) {
-    return this.transactionsService.create(req.user.userId, createTransactionDto);
+  create(
+    @Request() req: any,
+    @Body() createTransactionDto: CreateTransactionDto,
+  ) {
+    return this.transactionsService.create(
+      req.user.userId,
+      createTransactionDto,
+    );
   }
 
   @Get()
@@ -32,8 +48,16 @@ export class TransactionsController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Actualizar una transacción' })
-  update(@Request() req: any, @Param('id') id: string, @Body() updateTransactionDto: UpdateTransactionDto) {
-    return this.transactionsService.update(req.user.userId, id, updateTransactionDto);
+  update(
+    @Request() req: any,
+    @Param('id') id: string,
+    @Body() updateTransactionDto: UpdateTransactionDto,
+  ) {
+    return this.transactionsService.update(
+      req.user.userId,
+      id,
+      updateTransactionDto,
+    );
   }
 
   @Delete(':id')

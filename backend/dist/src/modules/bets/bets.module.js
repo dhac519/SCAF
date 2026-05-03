@@ -18,7 +18,7 @@ exports.BetsModule = BetsModule = __decorate([
     (0, common_1.Module)({
         imports: [prisma_module_1.PrismaModule],
         providers: [bets_service_1.BetsService],
-        controllers: [bets_controller_1.BetsController]
+        controllers: [bets_controller_1.BetsController],
     })
 ], BetsModule);
 //# sourceMappingURL=bets.module.js.map

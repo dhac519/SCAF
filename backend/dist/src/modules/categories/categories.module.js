@@ -18,7 +18,7 @@ exports.CategoriesModule = CategoriesModule = __decorate([
     (0, common_1.Module)({
         imports: [prisma_module_1.PrismaModule],
         providers: [categories_service_1.CategoriesService],
-        controllers: [categories_controller_1.CategoriesController]
+        controllers: [categories_controller_1.CategoriesController],
     })
 ], CategoriesModule);
 //# sourceMappingURL=categories.module.js.map

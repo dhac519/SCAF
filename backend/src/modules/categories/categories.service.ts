@@ -27,12 +27,18 @@ export class CategoriesService {
       where: { id, userId },
     });
     if (!category) {
-      throw new NotFoundException('Categoría no encontrada o no pertenece al usuario');
+      throw new NotFoundException(
+        'Categoría no encontrada o no pertenece al usuario',
+      );
     }
     return category;
   }
 
-  async update(userId: string, id: string, updateCategoryDto: UpdateCategoryDto) {
+  async update(
+    userId: string,
+    id: string,
+    updateCategoryDto: UpdateCategoryDto,
+  ) {
     await this.findOne(userId, id); // Verifica si existe y es del usuario
 
     return this.prisma.category.update({

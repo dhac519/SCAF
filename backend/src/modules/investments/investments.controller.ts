@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { InvestmentsService } from './investments.service';
 import { CreateInvestmentDto } from './dto/create-investment.dto';
 import { UpdateInvestmentDto } from './dto/update-investment.dto';
@@ -16,7 +26,10 @@ export class InvestmentsController {
 
   @Post()
   @ApiOperation({ summary: 'Crear una nueva inversión' })
-  create(@Request() req: any, @Body() createInvestmentDto: CreateInvestmentDto) {
+  create(
+    @Request() req: any,
+    @Body() createInvestmentDto: CreateInvestmentDto,
+  ) {
     return this.investmentsService.create(req.user.userId, createInvestmentDto);
   }
 
@@ -27,7 +40,9 @@ export class InvestmentsController {
   }
 
   @Get('market-trends')
-  @ApiOperation({ summary: 'Obtener tendencias del mercado (Cripto y Divisas)' })
+  @ApiOperation({
+    summary: 'Obtener tendencias del mercado (Cripto y Divisas)',
+  })
   getMarketTrends() {
     return this.investmentsService.getMarketTrends();
   }
@@ -35,8 +50,14 @@ export class InvestmentsController {
   // PLATFORMS
   @Post('platforms')
   @ApiOperation({ summary: 'Crear una plataforma de inversión' })
-  createPlatform(@Request() req: any, @Body() createPlatformDto: CreatePlatformDto) {
-    return this.investmentsService.createPlatform(req.user.userId, createPlatformDto);
+  createPlatform(
+    @Request() req: any,
+    @Body() createPlatformDto: CreatePlatformDto,
+  ) {
+    return this.investmentsService.createPlatform(
+      req.user.userId,
+      createPlatformDto,
+    );
   }
 
   @Get('platforms')
@@ -53,8 +74,16 @@ export class InvestmentsController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Actualizar una inversión (ej. currentValue)' })
-  update(@Request() req: any, @Param('id') id: string, @Body() updateInvestmentDto: UpdateInvestmentDto) {
-    return this.investmentsService.update(req.user.userId, id, updateInvestmentDto);
+  update(
+    @Request() req: any,
+    @Param('id') id: string,
+    @Body() updateInvestmentDto: UpdateInvestmentDto,
+  ) {
+    return this.investmentsService.update(
+      req.user.userId,
+      id,
+      updateInvestmentDto,
+    );
   }
 
   @Delete(':id')
@@ -66,7 +95,10 @@ export class InvestmentsController {
   // TRANSACTIONS
   @Post('transactions')
   @ApiOperation({ summary: 'Registrar una transacción de compra/venta' })
-  addTransaction(@Request() req: any, @Body() dto: CreateInvestmentTransactionDto) {
+  addTransaction(
+    @Request() req: any,
+    @Body() dto: CreateInvestmentTransactionDto,
+  ) {
     return this.investmentsService.addTransaction(req.user.userId, dto);
   }
 }

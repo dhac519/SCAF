@@ -19,13 +19,21 @@ class ResolveBetDto {
 }
 exports.ResolveBetDto = ResolveBetDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ enum: client_1.BetStatus, example: client_1.BetStatus.WON, description: 'Estado resultante de la apuesta' }),
+    (0, swagger_1.ApiProperty)({
+        enum: client_1.BetStatus,
+        example: client_1.BetStatus.WON,
+        description: 'Estado resultante de la apuesta',
+    }),
     (0, class_validator_1.IsEnum)(client_1.BetStatus),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], ResolveBetDto.prototype, "status", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ required: false, example: 15.5, description: 'Monto total retirado (usado en estado CASHOUT)' }),
+    (0, swagger_1.ApiProperty)({
+        required: false,
+        example: 15.5,
+        description: 'Monto total retirado (usado en estado CASHOUT)',
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)

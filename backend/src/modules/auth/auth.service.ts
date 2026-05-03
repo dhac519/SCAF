@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcryptjs';
@@ -10,6 +11,7 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
+    private readonly prisma: PrismaService,
   ) {}
 
   async register(createUserDto: CreateUserDto) {
@@ -23,14 +25,28 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
-    const isPasswordValid = await bcrypt.compare(loginDto.password, user.password);
+    if (!user.isActive) {
+      throw new UnauthorizedException(
+        'Tu cuenta ha sido desactivada. Por favor comunícate con el Administrador.',
+      );
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      loginDto.password,
+      user.password,
+    );
 
     if (!isPasswordValid) {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
-    const payload = { email: user.email, sub: user.id, role: user.role, modules: user.modules };
-    
+    const payload = {
+      email: user.email,
+      sub: user.id,
+      role: user.role,
+      modules: user.modules,
+    };
+
     return {
       access_token: this.jwtService.sign(payload),
       user: {
@@ -38,8 +54,18 @@ export class AuthService {
         name: user.name,
         email: user.email,
         role: user.role,
-        modules: user.modules
-      }
+        modules: user.modules,
+      },
     };
+  }
+
+  async heartbeat(userId: string) {
+    return this.usersService.updateHeartbeat(userId);
+  }
+
+  async createSupportTicket(email: string, reason: string) {
+    return this.prisma.supportTicket.create({
+      data: { email, reason },
+    });
   }
 }

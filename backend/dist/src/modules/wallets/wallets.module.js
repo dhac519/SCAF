@@ -18,7 +18,7 @@ exports.WalletsModule = WalletsModule = __decorate([
     (0, common_1.Module)({
         imports: [prisma_module_1.PrismaModule],
         providers: [wallets_service_1.WalletsService],
-        controllers: [wallets_controller_1.WalletsController]
+        controllers: [wallets_controller_1.WalletsController],
     })
 ], WalletsModule);
 //# sourceMappingURL=wallets.module.js.map

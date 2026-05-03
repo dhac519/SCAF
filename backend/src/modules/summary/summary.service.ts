@@ -15,27 +15,43 @@ export class SummaryService {
     const investments = await this.prisma.investment.findMany({
       where: { userId },
     });
-    const totalInvestments = investments.reduce((acc, i) => acc + Number(i.currentValue), 0);
+    const totalInvestments = investments.reduce(
+      (acc, i) => acc + Number(i.currentValue),
+      0,
+    );
 
     const pendingBets = await this.prisma.bet.findMany({
       where: { userId, status: 'PENDING' },
     });
-    const totalBetsStake = pendingBets.reduce((acc, b) => acc + Number(b.stake), 0);
+    const totalBetsStake = pendingBets.reduce(
+      (acc, b) => acc + Number(b.stake),
+      0,
+    );
 
     const collectionItems = await this.prisma.collectionItem.findMany({
       where: { userId },
     });
-    const totalCollectionsValue = collectionItems.reduce((acc, c) => acc + Number(c.estimatedValue || 0), 0);
+    const totalCollectionsValue = collectionItems.reduce(
+      (acc, c) => acc + Number(c.estimatedValue || 0),
+      0,
+    );
 
     // 2. Monthly Pulse (Last 6 Months) using native Date
     const monthlyPulse = [];
     const now = new Date();
-    
+
     for (let i = 5; i >= 0; i--) {
       // Calculate start and end of month i months ago
       const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const start = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const end = new Date(now.getFullYear(), now.getMonth() - i + 1, 0, 23, 59, 59);
+      const end = new Date(
+        now.getFullYear(),
+        now.getMonth() - i + 1,
+        0,
+        23,
+        59,
+        59,
+      );
 
       const txs = await this.prisma.transaction.findMany({
         where: {
@@ -68,7 +84,7 @@ export class SummaryService {
     });
 
     const tipsterBank = await this.prisma.tipsterBank.findUnique({
-      where: { userId }
+      where: { userId },
     });
 
     return {
@@ -76,11 +92,16 @@ export class SummaryService {
         { label: 'Efectivo', value: totalCash, color: '#3b82f6' },
         { label: 'Inversiones', value: totalInvestments, color: '#10b981' },
         { label: 'Apuestas', value: totalBetsStake, color: '#a855f7' },
-        { label: 'Colecciones', value: totalCollectionsValue, color: '#f59e0b' },
+        {
+          label: 'Colecciones',
+          value: totalCollectionsValue,
+          color: '#f59e0b',
+        },
       ],
       monthlyPulse,
       stats: {
-        totalNetWorth: totalCash + totalInvestments + totalBetsStake + totalCollectionsValue,
+        totalNetWorth:
+          totalCash + totalInvestments + totalBetsStake + totalCollectionsValue,
         activeInvestments: investments.length,
         pendingBets: pendingBets.length,
         collectionsCount: collectionItems.length,

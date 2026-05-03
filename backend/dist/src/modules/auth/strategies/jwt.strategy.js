@@ -13,21 +13,33 @@ exports.JwtStrategy = void 0;
 const passport_jwt_1 = require("passport-jwt");
 const passport_1 = require("@nestjs/passport");
 const common_1 = require("@nestjs/common");
+const users_service_1 = require("../../users/users.service");
 let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(passport_jwt_1.Strategy) {
-    constructor() {
+    usersService;
+    constructor(usersService) {
         super({
             jwtFromRequest: passport_jwt_1.ExtractJwt.fromAuthHeaderAsBearerToken(),
             ignoreExpiration: false,
             secretOrKey: process.env.JWT_SECRET || 'mi_secreto_super_seguro_dhac_2026',
         });
+        this.usersService = usersService;
     }
     async validate(payload) {
-        return { userId: payload.sub, email: payload.email, role: payload.role };
+        const user = await this.usersService.findById(payload.sub);
+        if (!user || !user.isActive) {
+            throw new common_1.UnauthorizedException('Tu cuenta ha sido desactivada. Por favor comunícate con el Administrador.');
+        }
+        return {
+            userId: payload.sub,
+            email: payload.email,
+            role: payload.role,
+            modules: user.modules,
+        };
     }
 };
 exports.JwtStrategy = JwtStrategy;
 exports.JwtStrategy = JwtStrategy = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [])
+    __metadata("design:paramtypes", [users_service_1.UsersService])
 ], JwtStrategy);
 //# sourceMappingURL=jwt.strategy.js.map

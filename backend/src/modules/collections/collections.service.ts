@@ -1,6 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CreateCategoryDto, CreateSubcategoryDto, CreateItemDto } from './dto/collections.dto';
+import {
+  CreateCategoryDto,
+  CreateSubcategoryDto,
+  CreateItemDto,
+} from './dto/collections.dto';
 
 @Injectable()
 export class CollectionsService {
@@ -15,13 +19,15 @@ export class CollectionsService {
     return this.prisma.collectionCategory.findMany({
       where: { userId },
       include: { subcategories: true },
-      orderBy: { name: 'asc' }
+      orderBy: { name: 'asc' },
     });
   }
 
   // SUBCATEGORIES
   async createSubcategory(dto: CreateSubcategoryDto, userId: string) {
-    return this.prisma.collectionSubcategory.create({ data: { ...dto, userId } });
+    return this.prisma.collectionSubcategory.create({
+      data: { ...dto, userId },
+    });
   }
 
   // ITEMS
@@ -33,12 +39,14 @@ export class CollectionsService {
     return this.prisma.collectionItem.findMany({
       where: { userId },
       include: { category: true, subcategory: true },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
   }
 
   async removeItem(id: string, userId: string) {
-    const item = await this.prisma.collectionItem.findFirst({ where: { id, userId } });
+    const item = await this.prisma.collectionItem.findFirst({
+      where: { id, userId },
+    });
     if (!item) throw new NotFoundException('Item not found');
     return this.prisma.collectionItem.delete({ where: { id } });
   }

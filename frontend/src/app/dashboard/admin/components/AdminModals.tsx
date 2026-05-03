@@ -18,7 +18,7 @@ export function AdminModals({
               <p className="text-slate-500 text-sm mt-1">Configura el acceso para <b>{selectedUser.name || selectedUser.email}</b></p>
             </div>
 
-            <div className="space-y-3 mb-8">
+            <div className="space-y-3 mb-8 max-h-[50vh] overflow-y-auto custom-scrollbar pr-2">
               {MODULES_CONFIG.map((mod: any) => {
                 const isEnabled = selectedUser.modules.includes(mod.key);
                 return (

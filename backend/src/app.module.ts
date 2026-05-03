@@ -15,9 +15,25 @@ import { AdminModule } from './modules/admin/admin.module';
 import { SummaryModule } from './modules/summary/summary.module';
 import { TipstersModule } from './modules/tipsters/tipsters.module';
 import { WikiModule } from './modules/wiki/wiki.module';
+import { NetopsModule } from './modules/netops/netops.module';
 
 @Module({
-  imports: [AuthModule, UsersModule, PrismaModule, WalletsModule, CategoriesModule, TransactionsModule, InvestmentsModule, BetsModule, CollectionsModule, AdminModule, SummaryModule, TipstersModule, WikiModule],
+  imports: [
+    AuthModule,
+    UsersModule,
+    PrismaModule,
+    WalletsModule,
+    CategoriesModule,
+    TransactionsModule,
+    InvestmentsModule,
+    BetsModule,
+    CollectionsModule,
+    AdminModule,
+    SummaryModule,
+    TipstersModule,
+    WikiModule,
+    NetopsModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

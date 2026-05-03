@@ -14,12 +14,14 @@ export class AdminService {
         name: true,
         role: true,
         modules: true,
+        isActive: true,
+        lastActiveAt: true,
         createdAt: true,
         _count: {
-          select: { wallets: true }
-        }
+          select: { wallets: true },
+        },
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
   }
 
@@ -30,7 +32,7 @@ export class AdminService {
   async updateUserModules(id: string, modules: string[]) {
     return this.prisma.user.update({
       where: { id },
-      data: { modules }
+      data: { modules },
     });
   }
 
@@ -43,7 +45,14 @@ export class AdminService {
 
     return this.prisma.user.update({
       where: { id },
-      data: { password: hashedPassword }
+      data: { password: hashedPassword },
+    });
+  }
+
+  async toggleUserActiveStatus(id: string, isActive: boolean) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { isActive },
     });
   }
 
@@ -52,12 +61,29 @@ export class AdminService {
     const totalWallets = await this.prisma.wallet.count();
     const totalCollections = await this.prisma.collectionItem.count();
     const totalTransactions = await this.prisma.transaction.count();
-    
+
     return {
       users: totalUsers,
       wallets: totalWallets,
       collections: totalCollections,
-      transactions: totalTransactions
+      transactions: totalTransactions,
     };
+  }
+
+  async getAllSupportTickets() {
+    return this.prisma.supportTicket.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async updateSupportTicketStatus(id: string, status: string) {
+    return this.prisma.supportTicket.update({
+      where: { id },
+      data: { status },
+    });
+  }
+
+  async deleteSupportTicket(id: string) {
+    return this.prisma.supportTicket.delete({ where: { id } });
   }
 }

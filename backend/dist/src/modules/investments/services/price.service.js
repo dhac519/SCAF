@@ -29,7 +29,7 @@ let PriceService = PriceService_1 = class PriceService {
             const data = await response.json();
             return {
                 base: data.base_code,
-                rates: data.rates
+                rates: data.rates,
             };
         }
         catch (error) {
@@ -41,7 +41,7 @@ let PriceService = PriceService_1 = class PriceService {
         try {
             const [cryptoRes, forexRes] = await Promise.all([
                 fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&sparkline=false&price_change_percentage=24h'),
-                fetch('https://open.er-api.com/v6/latest/USD')
+                fetch('https://open.er-api.com/v6/latest/USD'),
             ]);
             const forexData = await forexRes.json();
             const cryptoData = await cryptoRes.json();
@@ -49,8 +49,8 @@ let PriceService = PriceService_1 = class PriceService {
                 crypto: Array.isArray(cryptoData) ? cryptoData : [],
                 forex: {
                     base: forexData.base_code || 'USD',
-                    rates: forexData.rates || {}
-                }
+                    rates: forexData.rates || {},
+                },
             };
         }
         catch (error) {

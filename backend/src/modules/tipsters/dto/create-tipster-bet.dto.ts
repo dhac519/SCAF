@@ -1,4 +1,10 @@
-import { IsString, IsNumber, IsOptional, IsEnum, IsDateString } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsOptional,
+  IsEnum,
+  IsDateString,
+} from 'class-validator';
 import { BetStatus } from '@prisma/client';
 
 export class CreateTipsterBetDto {
@@ -17,7 +23,7 @@ export class CreateTipsterBetDto {
   @IsOptional()
   @IsDateString()
   date?: string;
-  
+
   @IsOptional()
   @IsEnum(BetStatus)
   status?: BetStatus;

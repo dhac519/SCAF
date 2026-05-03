@@ -6,8 +6,8 @@ export declare class WikiService {
     private readonly prisma;
     constructor(prisma: PrismaService);
     createFolder(userId: string, createFolderDto: CreateFolderDto): Promise<{
-        name: string;
         id: string;
+        name: string;
         createdAt: Date;
         updatedAt: Date;
         userId: string;
@@ -24,38 +24,38 @@ export declare class WikiService {
                 topicId: string;
             }[];
         } & {
-            name: string;
             id: string;
+            name: string;
             createdAt: Date;
             updatedAt: Date;
             userId: string;
             folderId: string;
         })[];
     } & {
-        name: string;
         id: string;
+        name: string;
         createdAt: Date;
         updatedAt: Date;
         userId: string;
     })[]>;
     removeFolder(userId: string, id: string): Promise<{
-        name: string;
         id: string;
+        name: string;
         createdAt: Date;
         updatedAt: Date;
         userId: string;
     }>;
     createTopic(userId: string, createTopicDto: CreateTopicDto): Promise<{
-        name: string;
         id: string;
+        name: string;
         createdAt: Date;
         updatedAt: Date;
         userId: string;
         folderId: string;
     }>;
     removeTopic(userId: string, id: string): Promise<{
-        name: string;
         id: string;
+        name: string;
         createdAt: Date;
         updatedAt: Date;
         userId: string;
@@ -82,15 +82,15 @@ export declare class WikiService {
     findOneNote(userId: string, id: string): Promise<{
         topic: {
             folder: {
-                name: string;
                 id: string;
+                name: string;
                 createdAt: Date;
                 updatedAt: Date;
                 userId: string;
             };
         } & {
-            name: string;
             id: string;
+            name: string;
             createdAt: Date;
             updatedAt: Date;
             userId: string;

@@ -80,7 +80,9 @@ __decorate([
 ], BetsController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Patch)(':id/resolve'),
-    (0, swagger_1.ApiOperation)({ summary: 'Resolver el estado de una apuesta (WON, LOST, VOID)' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Resolver el estado de una apuesta (WON, LOST, VOID)',
+    }),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Param)('id')),
     __param(2, (0, common_1.Body)()),

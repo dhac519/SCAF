@@ -23,38 +23,54 @@ class CreateTransactionDto {
 }
 exports.CreateTransactionDto = CreateTransactionDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 100.50, description: 'Monto de la transacción' }),
+    (0, swagger_1.ApiProperty)({ example: 100.5, description: 'Monto de la transacción' }),
     (0, class_validator_1.IsNumber)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", Number)
 ], CreateTransactionDto.prototype, "amount", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'Compra de víveres', description: 'Descripción de la transacción' }),
+    (0, swagger_1.ApiProperty)({
+        example: 'Compra de víveres',
+        description: 'Descripción de la transacción',
+    }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateTransactionDto.prototype, "description", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ enum: client_1.TransactionType, example: client_1.TransactionType.EXPENSE, description: 'Tipo de transacción' }),
+    (0, swagger_1.ApiProperty)({
+        enum: client_1.TransactionType,
+        example: client_1.TransactionType.EXPENSE,
+        description: 'Tipo de transacción',
+    }),
     (0, class_validator_1.IsEnum)(client_1.TransactionType),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateTransactionDto.prototype, "type", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'uuid-billetera-1', description: 'ID de la billetera origen' }),
+    (0, swagger_1.ApiProperty)({
+        example: 'uuid-billetera-1',
+        description: 'ID de la billetera origen',
+    }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateTransactionDto.prototype, "walletId", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ example: 'uuid-billetera-dest', description: 'ID de la billetera destino (requerido si es TRANSFER)' }),
-    (0, class_validator_1.ValidateIf)(o => o.type === client_1.TransactionType.TRANSFER),
+    (0, swagger_1.ApiPropertyOptional)({
+        example: 'uuid-billetera-dest',
+        description: 'ID de la billetera destino (requerido si es TRANSFER)',
+    }),
+    (0, class_validator_1.ValidateIf)((o) => o.type === client_1.TransactionType.TRANSFER),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateTransactionDto.prototype, "targetWalletId", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ example: 'uuid-categoria-1', description: 'ID de la categoría (opcional)' }),
+    (0, swagger_1.ApiPropertyOptional)({
+        example: 'uuid-categoria-1',
+        description: 'ID de la categoría (opcional)',
+    }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)

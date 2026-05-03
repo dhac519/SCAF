@@ -4,11 +4,12 @@ import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import { useRouter } from 'next/navigation';
-import { ShieldAlert, Target, Wallet, Coins, TrendingUp, Activity, BookOpen } from 'lucide-react';
+import { ShieldAlert, Target, Wallet, Coins, TrendingUp, Activity, BookOpen, Terminal } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { AdminMetrics } from './components/AdminMetrics';
 import { AdminUsersTable } from './components/AdminUsersTable';
+import { AdminTicketsTable } from './components/AdminTicketsTable';
 import { AdminModals } from './components/AdminModals';
 
 export default function AdminPage() {
@@ -16,6 +17,8 @@ export default function AdminPage() {
   const { user } = useAuthStore();
   const [stats, setStats] = useState<any>(null);
   const [users, setUsers] = useState<any[]>([]);
+  const [tickets, setTickets] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<'users' | 'tickets'>('users');
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -34,12 +37,14 @@ export default function AdminPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [statsRes, usersRes] = await Promise.all([
+      const [statsRes, usersRes, ticketsRes] = await Promise.all([
         api.get('/admin/dashboard-stats'),
-        api.get('/admin/users')
+        api.get('/admin/users'),
+        api.get('/admin/support-tickets')
       ]);
       setStats(statsRes.data);
       setUsers(usersRes.data);
+      setTickets(ticketsRes.data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -50,6 +55,15 @@ export default function AdminPage() {
   useEffect(() => {
     if (user?.role === 'ADMIN') {
       fetchData();
+      
+      // Auto-refresh stats and users every 30 seconds
+      const interval = setInterval(() => {
+        api.get('/admin/dashboard-stats').then(res => setStats(res.data)).catch(() => {});
+        api.get('/admin/users').then(res => setUsers(res.data)).catch(() => {});
+        api.get('/admin/support-tickets').then(res => setTickets(res.data)).catch(() => {});
+      }, 30000);
+      
+      return () => clearInterval(interval);
     }
   }, [user]);
 
@@ -62,6 +76,36 @@ export default function AdminPage() {
       fetchData();
     } catch (err: any) {
       alert('Error eliminando usuario: ' + err.response?.data?.message || err.message);
+    }
+  };
+
+  const handleToggleActive = async (id: string, isActive: boolean) => {
+    try {
+      await api.patch(`/admin/users/${id}/active`, { isActive });
+      toast.success(`Cuenta ${isActive ? 'desbloqueada' : 'bloqueada'} con éxito`);
+      fetchData();
+    } catch (err: any) {
+      toast.error('Error actualizando estado de cuenta');
+    }
+  };
+
+  const handleStatusChange = async (id: string, status: string) => {
+    try {
+      await api.patch(`/admin/support-tickets/${id}/status`, { status });
+      toast.success('Estado del ticket actualizado');
+      fetchData();
+    } catch (err) {
+      toast.error('Error actualizando ticket');
+    }
+  };
+
+  const handleDeleteTicket = async (id: string) => {
+    if (!window.confirm('¿Eliminar este ticket permanentemente?')) return;
+    try {
+      await api.delete(`/admin/support-tickets/${id}`);
+      fetchData();
+    } catch (err) {
+      toast.error('Error eliminando ticket');
     }
   };
 
@@ -123,6 +167,7 @@ export default function AdminPage() {
     { key: 'TIPSTER_BANKROLL', label: 'Tipsters Bankroll', icon: Activity, color: 'rose' },
     { key: 'COLLECTIONS', label: 'Colecciones', icon: Coins, color: 'amber' },
     { key: 'WIKI', label: 'Wiki Hub', icon: BookOpen, color: 'rose' },
+    { key: 'NETOPS', label: 'Net-Ops Hub', icon: Terminal, color: 'emerald' },
   ];
 
   if (!user || user.role !== 'ADMIN') return null;
@@ -143,12 +188,41 @@ export default function AdminPage() {
 
       <AdminMetrics loading={loading} stats={stats} />
 
-      <AdminUsersTable 
-        users={users} loading={loading} userObj={user} 
-        handleOpenModules={handleOpenModules} 
-        handleOpenPassword={handleOpenPassword} 
-        handleDeleteUser={handleDeleteUser} 
-      />
+      <div className="flex space-x-2 border-b border-slate-200 dark:border-slate-800 pb-2">
+        <button 
+          onClick={() => setActiveTab('users')}
+          className={`px-4 py-2 text-sm font-bold rounded-xl transition-all ${activeTab === 'users' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+        >
+          Directorio de Usuarios
+        </button>
+        <button 
+          onClick={() => setActiveTab('tickets')}
+          className={`px-4 py-2 text-sm font-bold rounded-xl transition-all flex items-center gap-2 ${activeTab === 'tickets' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+        >
+          Buzón de Soporte
+          {tickets.filter(t => t.status === 'PENDING').length > 0 && (
+            <span className={`px-2 py-0.5 rounded-full text-[10px] ${activeTab === 'tickets' ? 'bg-white text-blue-600' : 'bg-rose-500 text-white'}`}>
+              {tickets.filter(t => t.status === 'PENDING').length}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {activeTab === 'users' ? (
+        <AdminUsersTable 
+          users={users} loading={loading} userObj={user} 
+          handleOpenModules={handleOpenModules} 
+          handleOpenPassword={handleOpenPassword} 
+          handleDeleteUser={handleDeleteUser} 
+          handleToggleActive={handleToggleActive}
+        />
+      ) : (
+        <AdminTicketsTable 
+          tickets={tickets} loading={loading}
+          handleStatusChange={handleStatusChange}
+          handleDeleteTicket={handleDeleteTicket}
+        />
+      )}
 
       <AdminModals 
         isModalOpen={isModalOpen} selectedUser={selectedUser} 

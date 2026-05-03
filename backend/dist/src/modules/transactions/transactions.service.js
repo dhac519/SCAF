@@ -88,7 +88,9 @@ let TransactionsService = class TransactionsService {
     }
     async update(userId, id, updateTransactionDto) {
         const transaction = await this.findOne(userId, id);
-        if (updateTransactionDto.amount || updateTransactionDto.type || updateTransactionDto.walletId) {
+        if (updateTransactionDto.amount ||
+            updateTransactionDto.type ||
+            updateTransactionDto.walletId) {
             throw new common_1.BadRequestException('Para actualizar monto, tipo o billetera, elimine la transacción y cree una nueva.');
         }
         return this.prisma.transaction.update({
