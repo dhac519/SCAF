@@ -24,7 +24,7 @@ model User {
   role         Role      @default(USER)
   modules      String[]  @default(["FINANCE"])
   createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  updatedAt    DateTime  @updatedAt @default(now())
   isActive     Boolean   @default(true)
   lastActiveAt DateTime?
 
@@ -121,7 +121,7 @@ model Investment {
 
   transactions InvestmentTransaction[]
   createdAt    DateTime                @default(now())
-  updatedAt    DateTime                @updatedAt
+  updatedAt    DateTime                @updatedAt @default(now())
 }
 
 model InvestmentPlatform {
@@ -131,7 +131,7 @@ model InvestmentPlatform {
   user        User         @relation(fields: [userId], references: [id])
   investments Investment[]
   createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  updatedAt   DateTime     @updatedAt @default(now())
 }
 
 model InvestmentTransaction {
@@ -154,7 +154,7 @@ model WikiFolder {
   user      User        @relation(fields: [userId], references: [id])
   topics    WikiTopic[]
   createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  updatedAt DateTime    @updatedAt @default(now())
 }
 
 model WikiTopic {
@@ -166,7 +166,7 @@ model WikiTopic {
   userId    String
   user      User       @relation(fields: [userId], references: [id])
   createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  updatedAt DateTime   @updatedAt @default(now())
 }
 
 model WikiNote {
@@ -187,7 +187,7 @@ model SupportTicket {
   reason    String
   status    String   @default("PENDING") // PENDING, RESOLVED, REJECTED
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @updatedAt @default(now())
 }
 
 // --- MÓDULO DE APUESTAS ---
@@ -266,7 +266,7 @@ model TipsterBank {
   unitValue   Decimal  @default(100) @db.Decimal(20, 8) // Valor inicial de la unidad (referencia)
   userId      String   @unique
   user        User     @relation(fields: [userId], references: [id])
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime @updatedAt @default(now())
 }
 
 model TipsterBet {
@@ -323,5 +323,5 @@ model NetOpsCommand {
   user   User   @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @updatedAt @default(now())
 }
