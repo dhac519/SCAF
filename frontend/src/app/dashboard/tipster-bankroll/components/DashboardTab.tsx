@@ -1,6 +1,14 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
-export function DashboardTab({ dynamicStats, bank, uniqueTipsters, uniqueMonths, filterTipster, setFilterTipster, filterMonth, setFilterMonth, filteredBets }: any) {
+export function DashboardTab({ dynamicStats, bank, uniqueTipsters, uniqueMonths, filterTipsters, setFilterTipsters, filterMonth, setFilterMonth, filteredBets }: any) {
+  const toggleTipster = (t: string) => {
+    if (filterTipsters.includes(t)) {
+      setFilterTipsters(filterTipsters.filter((item: string) => item !== t));
+    } else {
+      setFilterTipsters([...filterTipsters, t]);
+    }
+  };
+
   const COLORS = ['#22c55e', '#ef4444', '#94a3b8']; // Won, Lost, Void
   const pieData = [
     { name: 'Ganadas', value: dynamicStats.won },
@@ -84,12 +92,23 @@ export function DashboardTab({ dynamicStats, bank, uniqueTipsters, uniqueMonths,
          {/* FILTROS Y CABECERA */}
          <div className="bg-white dark:bg-slate-900 rounded-3xl p-4 shadow-sm border border-slate-200 dark:border-slate-800">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
-               <div className="flex flex-wrap gap-2">
-                 <button onClick={() => setFilterTipster('ALL')} className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition-all ${filterTipster === 'ALL' ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}>TODOS LOS TIPSTERS</button>
-                 {uniqueTipsters.map((t: string) => (
-                   <button key={t} onClick={() => setFilterTipster(t)} className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition-all ${filterTipster === t ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}>{t}</button>
-                 ))}
-               </div>
+                <div className="flex flex-wrap gap-2">
+                  <button 
+                    onClick={() => setFilterTipsters([])} 
+                    className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition-all ${filterTipsters.length === 0 ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
+                  >
+                    TODOS LOS TIPSTERS
+                  </button>
+                  {uniqueTipsters.map((t: string) => (
+                    <button 
+                      key={t} 
+                      onClick={() => toggleTipster(t)} 
+                      className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition-all ${filterTipsters.includes(t) ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
                
                <div className="flex items-center gap-2">
                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">MES:</span>
@@ -146,7 +165,7 @@ export function DashboardTab({ dynamicStats, bank, uniqueTipsters, uniqueMonths,
          <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
             <div className="xl:col-span-2 bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
                <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
-                  <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Últimos Pronósticos {filterTipster !== 'ALL' && `- ${filterTipster}`}</h3>
+                  <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Últimos Pronósticos {filterTipsters.length > 0 && `- ${filterTipsters.join(', ')}`}</h3>
                </div>
                <div className="overflow-x-auto">
                   <table className="w-full text-xs text-left">

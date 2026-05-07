@@ -48,7 +48,7 @@ export default function TipsterBankrollPage() {
   const [bankConfig, setBankConfig] = useState({ initialBank: '', unitValue: '' });
 
   // Filters
-  const [filterTipster, setFilterTipster] = useState<string>('ALL');
+  const [filterTipsters, setFilterTipsters] = useState<string[]>([]);
   const [filterMonth, setFilterMonth] = useState<string>('ALL');
 
   const fetchDashboard = async () => {
@@ -235,7 +235,8 @@ export default function TipsterBankrollPage() {
   const filteredBets = useMemo(() => {
     return bets.filter(b => {
       let isMatch = true;
-      if (filterTipster !== 'ALL' && b.tipster !== filterTipster) isMatch = false;
+      const tName = b.tipster.trim().toUpperCase();
+      if (filterTipsters.length > 0 && !filterTipsters.includes(tName)) isMatch = false;
       if (filterMonth !== 'ALL') {
         const date = new Date(b.date);
         const m = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
@@ -243,7 +244,7 @@ export default function TipsterBankrollPage() {
       }
       return isMatch;
     });
-  }, [bets, filterTipster, filterMonth]);
+  }, [bets, filterTipsters, filterMonth]);
 
   const dynamicStats = useMemo(() => {
     let totalWagered = 0;
@@ -332,7 +333,7 @@ export default function TipsterBankrollPage() {
         <div className="text-center py-20 animate-pulse text-slate-400">Calculando métricas...</div>
       ) : (
         <>
-          {activeTab === 'dashboard' && <DashboardTab dynamicStats={dynamicStats} bank={bank} uniqueTipsters={uniqueTipsters} uniqueMonths={uniqueMonths} filterTipster={filterTipster} setFilterTipster={setFilterTipster} filterMonth={filterMonth} setFilterMonth={setFilterMonth} filteredBets={filteredBets} />}
+          {activeTab === 'dashboard' && <DashboardTab dynamicStats={dynamicStats} bank={bank} uniqueTipsters={uniqueTipsters} uniqueMonths={uniqueMonths} filterTipsters={filterTipsters} setFilterTipsters={setFilterTipsters} filterMonth={filterMonth} setFilterMonth={setFilterMonth} filteredBets={filteredBets} />}
           {activeTab === 'registro' && <RegistroTab bets={bets} initialBank={bank.initial} handleExportCSV={handleExportCSV} setShowModal={setShowModal} handleUpdateStatus={handleUpdateStatus} handleEditClick={handleEditClick} handleDeleteClick={handleDeleteClick} />}
           {activeTab === 'ranking' && <RankingTab ranking={ranking} />}
         </>
