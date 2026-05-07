@@ -9,9 +9,9 @@ export declare class AuthService {
     private readonly prisma;
     constructor(usersService: UsersService, jwtService: JwtService, prisma: PrismaService);
     register(createUserDto: CreateUserDto): Promise<{
-        id: string;
         email: string;
         name: string | null;
+        id: string;
         role: import(".prisma/client").$Enums.Role;
         modules: string[];
         createdAt: Date;
@@ -34,8 +34,8 @@ export declare class AuthService {
         lastActiveAt: Date | null;
     }>;
     createSupportTicket(email: string, reason: string): Promise<{
-        id: string;
         email: string;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
         reason: string;

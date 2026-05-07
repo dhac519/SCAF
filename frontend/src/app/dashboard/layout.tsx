@@ -75,7 +75,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const baseNavItems = [
     { name: 'General', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Wiki Hub', href: '/dashboard/wiki', icon: BookOpen },
+    { name: 'Wiki Hub', href: '/dashboard/wiki', icon: BookOpen, module: 'WIKI' },
     { name: 'Net-Ops Hub', href: '/dashboard/netops', icon: Terminal, module: 'NETOPS' },
     { name: 'Finanzas', href: '/dashboard/finances', icon: Wallet, module: 'FINANCE' },
     { name: 'Inversiones', href: '/dashboard/investments', icon: TrendingUp, module: 'INVESTMENTS' },
@@ -85,7 +85,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   ];
 
   // We add Analitica under General ONLY if the user has at least some modules (like Finance, Bets, etc)
-  const hasMultipleModules = (user?.modules?.length || 0) > 0;
+  const hasMultipleModules = (user?.modules?.length || 0) > 1;
   if (hasMultipleModules) {
     baseNavItems.splice(1, 0, { name: 'Analítica Global', href: '/dashboard/analytics', icon: TrendingUp } as any);
   }
@@ -141,10 +141,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </nav>
 
         <div className="p-4 border-t border-slate-200 dark:border-slate-800">
-          <div className="px-4 py-3 mb-3 rounded-2xl bg-slate-100 dark:bg-slate-800/60 flex flex-col">
-            <span className="text-sm font-bold text-slate-900 dark:text-white truncate">{user?.name || 'Usuario'}</span>
-            <span className="text-xs text-slate-500 dark:text-slate-400 truncate">{user?.email}</span>
-          </div>
+          <Link 
+            href="/dashboard/profile"
+            className="px-4 py-3 mb-3 rounded-2xl bg-slate-100 dark:bg-slate-800/60 flex flex-col hover:bg-slate-200 dark:hover:bg-slate-700/80 transition-colors group"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col min-w-0">
+                <span className="text-sm font-bold text-slate-900 dark:text-white truncate">{user?.name || 'Usuario'}</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400 truncate">{user?.email}</span>
+              </div>
+              <ShieldAlert className="h-4 w-4 text-slate-400 group-hover:text-blue-500 transition-colors shrink-0 ml-2" />
+            </div>
+          </Link>
           <button
             onClick={() => {
               logout();

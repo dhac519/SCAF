@@ -16,22 +16,22 @@ export declare class TransactionsService {
     }>;
     findAll(userId: string): Promise<({
         wallet: {
-            id: string;
             name: string;
+            id: string;
             type: import(".prisma/client").$Enums.WalletType;
             balance: import("@prisma/client/runtime/library").Decimal;
             currency: string;
             userId: string;
         };
         category: {
-            id: string;
             name: string;
+            id: string;
             type: import(".prisma/client").$Enums.TransactionType;
             userId: string;
         } | null;
         targetWallet: {
-            id: string;
             name: string;
+            id: string;
             type: import(".prisma/client").$Enums.WalletType;
             balance: import("@prisma/client/runtime/library").Decimal;
             currency: string;
@@ -49,22 +49,22 @@ export declare class TransactionsService {
     })[]>;
     findOne(userId: string, id: string): Promise<{
         wallet: {
-            id: string;
             name: string;
+            id: string;
             type: import(".prisma/client").$Enums.WalletType;
             balance: import("@prisma/client/runtime/library").Decimal;
             currency: string;
             userId: string;
         };
         category: {
-            id: string;
             name: string;
+            id: string;
             type: import(".prisma/client").$Enums.TransactionType;
             userId: string;
         } | null;
         targetWallet: {
-            id: string;
             name: string;
+            id: string;
             type: import(".prisma/client").$Enums.WalletType;
             balance: import("@prisma/client/runtime/library").Decimal;
             currency: string;

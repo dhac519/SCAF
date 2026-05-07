@@ -9,8 +9,8 @@ export declare class InvestmentsService {
     private readonly priceService;
     constructor(prisma: PrismaService, priceService: PriceService);
     createPlatform(userId: string, createPlatformDto: CreatePlatformDto): Promise<{
-        id: string;
         name: string;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
         userId: string;
@@ -30,8 +30,8 @@ export declare class InvestmentsService {
             platformId: string | null;
         }[];
     } & {
-        id: string;
         name: string;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
         userId: string;
@@ -59,8 +59,8 @@ export declare class InvestmentsService {
             investmentId: string;
         }[];
         platform: {
-            id: string;
             name: string;
+            id: string;
             createdAt: Date;
             updatedAt: Date;
             userId: string;
@@ -88,8 +88,8 @@ export declare class InvestmentsService {
             investmentId: string;
         }[];
         platform: {
-            id: string;
             name: string;
+            id: string;
             createdAt: Date;
             updatedAt: Date;
             userId: string;

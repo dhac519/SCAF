@@ -24,8 +24,8 @@ export declare class SummaryService {
         };
         latestTransactions: ({
             wallet: {
-                id: string;
                 name: string;
+                id: string;
                 type: import(".prisma/client").$Enums.WalletType;
                 balance: import("@prisma/client/runtime/library").Decimal;
                 currency: string;

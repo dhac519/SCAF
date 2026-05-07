@@ -3,9 +3,9 @@ export declare class AdminService {
     private prisma;
     constructor(prisma: PrismaService);
     getAllUsers(): Promise<{
-        id: string;
         email: string;
         name: string | null;
+        id: string;
         role: import(".prisma/client").$Enums.Role;
         modules: string[];
         createdAt: Date;
@@ -16,10 +16,10 @@ export declare class AdminService {
         };
     }[]>;
     deleteUser(id: string): Promise<{
-        id: string;
         email: string;
         password: string;
         name: string | null;
+        id: string;
         role: import(".prisma/client").$Enums.Role;
         modules: string[];
         createdAt: Date;
@@ -28,10 +28,10 @@ export declare class AdminService {
         lastActiveAt: Date | null;
     }>;
     updateUserModules(id: string, modules: string[]): Promise<{
-        id: string;
         email: string;
         password: string;
         name: string | null;
+        id: string;
         role: import(".prisma/client").$Enums.Role;
         modules: string[];
         createdAt: Date;
@@ -40,10 +40,10 @@ export declare class AdminService {
         lastActiveAt: Date | null;
     }>;
     resetUserPassword(id: string, newPassword: string): Promise<{
-        id: string;
         email: string;
         password: string;
         name: string | null;
+        id: string;
         role: import(".prisma/client").$Enums.Role;
         modules: string[];
         createdAt: Date;
@@ -52,10 +52,10 @@ export declare class AdminService {
         lastActiveAt: Date | null;
     }>;
     toggleUserActiveStatus(id: string, isActive: boolean): Promise<{
-        id: string;
         email: string;
         password: string;
         name: string | null;
+        id: string;
         role: import(".prisma/client").$Enums.Role;
         modules: string[];
         createdAt: Date;
@@ -70,24 +70,24 @@ export declare class AdminService {
         transactions: number;
     }>;
     getAllSupportTickets(): Promise<{
-        id: string;
         email: string;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
         reason: string;
         status: string;
     }[]>;
     updateSupportTicketStatus(id: string, status: string): Promise<{
-        id: string;
         email: string;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
         reason: string;
         status: string;
     }>;
     deleteSupportTicket(id: string): Promise<{
-        id: string;
         email: string;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
         reason: string;

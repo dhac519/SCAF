@@ -5,40 +5,40 @@ export declare class WalletsController {
     private readonly walletsService;
     constructor(walletsService: WalletsService);
     create(req: any, createWalletDto: CreateWalletDto): Promise<{
-        id: string;
         name: string;
+        id: string;
         type: import(".prisma/client").$Enums.WalletType;
         balance: import("@prisma/client/runtime/library").Decimal;
         currency: string;
         userId: string;
     }>;
     findAll(req: any): Promise<{
-        id: string;
         name: string;
+        id: string;
         type: import(".prisma/client").$Enums.WalletType;
         balance: import("@prisma/client/runtime/library").Decimal;
         currency: string;
         userId: string;
     }[]>;
     findOne(req: any, id: string): Promise<{
-        id: string;
         name: string;
+        id: string;
         type: import(".prisma/client").$Enums.WalletType;
         balance: import("@prisma/client/runtime/library").Decimal;
         currency: string;
         userId: string;
     }>;
     update(req: any, id: string, updateWalletDto: UpdateWalletDto): Promise<{
-        id: string;
         name: string;
+        id: string;
         type: import(".prisma/client").$Enums.WalletType;
         balance: import("@prisma/client/runtime/library").Decimal;
         currency: string;
         userId: string;
     }>;
     remove(req: any, id: string): Promise<{
-        id: string;
         name: string;
+        id: string;
         type: import(".prisma/client").$Enums.WalletType;
         balance: import("@prisma/client/runtime/library").Decimal;
         currency: string;

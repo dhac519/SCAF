@@ -6,8 +6,8 @@ export declare class WikiController {
     private readonly wikiService;
     constructor(wikiService: WikiService);
     createFolder(req: any, createFolderDto: CreateFolderDto): Promise<{
-        id: string;
         name: string;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
         userId: string;
@@ -24,38 +24,38 @@ export declare class WikiController {
                 topicId: string;
             }[];
         } & {
-            id: string;
             name: string;
+            id: string;
             createdAt: Date;
             updatedAt: Date;
             userId: string;
             folderId: string;
         })[];
     } & {
-        id: string;
         name: string;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
         userId: string;
     })[]>;
     removeFolder(req: any, id: string): Promise<{
-        id: string;
         name: string;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
         userId: string;
     }>;
     createTopic(req: any, createTopicDto: CreateTopicDto): Promise<{
-        id: string;
         name: string;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
         userId: string;
         folderId: string;
     }>;
     removeTopic(req: any, id: string): Promise<{
-        id: string;
         name: string;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
         userId: string;
@@ -73,15 +73,15 @@ export declare class WikiController {
     findOneNote(req: any, id: string): Promise<{
         topic: {
             folder: {
-                id: string;
                 name: string;
+                id: string;
                 createdAt: Date;
                 updatedAt: Date;
                 userId: string;
             };
         } & {
-            id: string;
             name: string;
+            id: string;
             createdAt: Date;
             updatedAt: Date;
             userId: string;

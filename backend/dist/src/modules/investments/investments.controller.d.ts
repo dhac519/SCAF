@@ -29,8 +29,8 @@ export declare class InvestmentsController {
             investmentId: string;
         }[];
         platform: {
-            id: string;
             name: string;
+            id: string;
             createdAt: Date;
             updatedAt: Date;
             userId: string;
@@ -50,8 +50,8 @@ export declare class InvestmentsController {
     })[]>;
     getMarketTrends(): Promise<any>;
     createPlatform(req: any, createPlatformDto: CreatePlatformDto): Promise<{
-        id: string;
         name: string;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
         userId: string;
@@ -71,8 +71,8 @@ export declare class InvestmentsController {
             platformId: string | null;
         }[];
     } & {
-        id: string;
         name: string;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
         userId: string;
@@ -87,8 +87,8 @@ export declare class InvestmentsController {
             investmentId: string;
         }[];
         platform: {
-            id: string;
             name: string;
+            id: string;
             createdAt: Date;
             updatedAt: Date;
             userId: string;

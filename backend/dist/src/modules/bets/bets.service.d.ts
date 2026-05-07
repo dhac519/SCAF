@@ -18,8 +18,8 @@ export declare class BetsService {
     }>;
     findAll(userId: string): Promise<({
         wallet: {
-            id: string;
             name: string;
+            id: string;
             type: import(".prisma/client").$Enums.WalletType;
             balance: import("@prisma/client/runtime/library").Decimal;
             currency: string;
@@ -39,8 +39,8 @@ export declare class BetsService {
     })[]>;
     findOne(userId: string, id: string): Promise<{
         wallet: {
-            id: string;
             name: string;
+            id: string;
             type: import(".prisma/client").$Enums.WalletType;
             balance: import("@prisma/client/runtime/library").Decimal;
             currency: string;
